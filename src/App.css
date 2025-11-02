@@ -1,6 +1,23 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .page-content {
+  flex: 1;
   padding: 1rem 30px 30px 30px;
   width: 100vw;
   box-sizing: border-box;
   overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
 }

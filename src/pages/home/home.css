@@ -1,6 +1,6 @@
 .home-container {
   display: flex;
-  align-items: space-between;
+  align-items: center;
   gap: 8rem;
   justify-content: center;
   padding: 2rem;
