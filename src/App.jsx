@@ -3,6 +3,7 @@ import './App.css'
 import SubNavBar from './components/sub-nav-bar/sub-nav-bar'
 import Home from './pages/home/home'
 import Navbar from './components/nav-bar/nav-bar'
+import Title from './components/title/title'
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
             <Route path="/test" element={<SubNavBar />} />
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<SubNavBar />} />
-            <Route path="/listening" element={<> </>} />
+            <Route path="/listening" element={<> <Title /> </>} />
           </Routes>
         </div>
         <footer className="footer">

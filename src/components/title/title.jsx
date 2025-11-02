@@ -1,30 +1,44 @@
-import React, { useMemo } from "react";
-import AudioPlayer from "@/components/audio-player/audio-player.jsx";
+import React from "react";
 import "./title.css";
 
-const Title = ({ audioBase64, script }) => {
-  const { taskLabel, description } = useMemo(() => {
-    if (!script) return { taskLabel: "", description: "" };
+const Title = ({ type = "click", lesson = "Kotisanasto 1", instruction = "Kuuntele seuraava keskustelu" }) => {
+  if (!type) {
+    console.error("[Title] 'type' prop is required");
+    return null; 
+  }
 
-    // Regex mới: match cả xuống dòng (\n)
-    const match = script.match(/^([^.]*)\.\s*([\s\S]*)$/);
-    if (match) {
-      return { taskLabel: match[1], description: match[2] };
+  const taskType = type.toLowerCase();
+
+  const renderTask = () => {
+    switch (taskType) {
+      case "click":
+        return (
+          <>
+            Listen and <span className="title-highlight-click">Click</span>
+          </>
+        );
+      case "drag":
+        return (
+          <>
+            Listen and <span className="title-highlight-drag">Drag</span>
+          </>
+        );
+      case "dialog":
+        return (
+          <>
+            Listen and <span className="title-highlight-dialog">Dialogues</span>
+          </>
+        );
+      default:
+        return null;
     }
-    return { taskLabel: script, description: "" };
-  }, [script]);
+  };
 
   return (
     <div className="title-wrapper" role="group" aria-label="Task title">
-      <div className="title-audio">
-        <AudioPlayer
-          src={`data:audio/mp3;base64,${audioBase64}`}
-          size="small"
-        />
-      </div>
-
-      {taskLabel && <span className="title-label">{taskLabel}</span>}
-      {description && <span className="title-description">{description}</span>}
+      <h2 className="title-task">{renderTask()}</h2>
+      <h2 className="title-lesson">{lesson}</h2>
+      <p className="title-instruction">{instruction}</p>
     </div>
   );
 };
