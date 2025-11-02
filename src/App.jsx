@@ -11,6 +11,8 @@ function App() {
         <Routes>
           <Route path="/test" element={<SubNavBar />} />
           <Route path="/" element={<Home />} />
+          <Route path="/game" element={<SubNavBar />} />
+          <Route path="/listening" element={<Listening />} />
         </Routes>
       </div>
     </Router>
