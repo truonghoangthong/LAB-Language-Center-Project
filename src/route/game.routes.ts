@@ -6,6 +6,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { timeTransformed } from "../utils/timeTransformed";
 import logger from "../utils/logger";
 import { httpLogger } from "../middleware/httpLogger";
+import { error } from "console";
 
 const gameRoutes = express.Router();
 gameRoutes.use(httpLogger);
@@ -33,7 +34,7 @@ gameRoutes.get("/:type", async (req: Request, res: Response): Promise<any> => {
     if (!isValidGameType(cleanType)) {
         logger.warn("Invalid game type requested", { requestedType: type });
         return res.status(400).json({
-            result: [], // Trả result rỗng nếu invalid
+            error: "No lessons found for the specified type"
         });
     }
 
@@ -87,7 +88,7 @@ gameRoutes.get("/:type", async (req: Request, res: Response): Promise<any> => {
             type: cleanType,
             error: error.message,
         });
-        return res.status(500).json({ result: [] }); // Trả result rỗng khi lỗi
+        return res.status(500).json({ error: "Error retrieving game lessons" }); // Trả result rỗng khi lỗi
     }
 });
 
@@ -105,13 +106,13 @@ gameRoutes.get("/:type/:lessonid", async (req: Request, res: Response) => {
     // Validate type
     if (!isValidGameType(cleanType)) {
         logger.warn("Invalid game type", { type, lessonid: cleanLessonId });
-        return res.status(400).json({ result: {} });
+        return res.status(400).json({ error: "No lessons found for the specified type" });
     }
 
     // Validate lessonid
     if (!cleanLessonId) {
         logger.warn("Missing lessonid", { type: cleanType });
-        return res.status(400).json({ result: {} });
+        return res.status(400).json({ error: "No lesson ID provided" });
     }
 
     logger.info("Fetching game detail", {
@@ -136,7 +137,7 @@ gameRoutes.get("/:type/:lessonid", async (req: Request, res: Response) => {
                 type: cleanType,
                 lessonid: cleanLessonId,
             });
-            return res.status(404).json({ result: {} });
+            return res.status(404).json({ error: "Game lesson not found" });
         }
 
         const docSnap = snapshot.docs[0];
@@ -185,7 +186,7 @@ gameRoutes.get("/:type/:lessonid", async (req: Request, res: Response) => {
             lessonid: cleanLessonId,
             error: error.message,
         });
-        return res.status(500).json({ result: {} });
+        return res.status(500).json({ error: "Error retrieving game detail" });
     }
 });
 
@@ -196,7 +197,7 @@ gameRoutes.use(
             error: err.message,
             url: req.originalUrl,
         });
-        res.status(500).json({ result: [] });
+        res.status(500).json({ error: "Internal server error in game routes" });
     }
 );
 

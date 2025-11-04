@@ -19,7 +19,8 @@
     "dev": "nodemon --exec ts-node src/server.ts",
     "start": "npm run build && npm run serve",
     "build": "tsc",
-    "serve": "node dist/server.js"
+    "serve": "node dist/server.js",
+    "start1": "nodemon src/server.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
