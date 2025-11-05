@@ -417,6 +417,9 @@ In a dialogue between two speakers:
 > 💡 Each speaker maintains their own sequential count while alternating turns.
 
 ### Example Dialogue Flow
+```
+people_1_1 → people_2_1 → people_1_2 → people_2_2
+```
 
 ```json
 {
@@ -429,6 +432,88 @@ In a dialogue between two speakers:
       "people_2_1": { imageLink, script, audioLink },
       "people_2_2": { imageLink, script, audioLink },
       "people_2_3": { imageLink, script, audioLink },
+      ........
+    }
+  }
+}
+```
+### 3. **Fetch game lessons** ( /game/:type )
+
+```json
+{
+  "result": [
+    {
+      "lessonName": ".....",
+      "module": ".....",
+      "type": ".....",
+      "lessonId": ".....",
+      "createAt": "....."
+    },
+    {
+      "lessonName": ".....",
+      "module": ".....",
+      "type": ".....",
+      "lessonId": ".....",
+      "createAt": "....."
+    }
+  ]
+}
+```
+
+### 4. **Fetch game lesson detail** ( //:type/:lessonid )
+### 4a. type sanapyramidi
+
+```json
+{
+  "result": {
+    "part1": {
+      "level_1": {
+        "topic": ".....",
+        "word_1": "....."
+      },
+      "level_2": {
+        "topic": ".....",
+        "word_1": ".....",
+        "word_2": "....."
+      },
+      "level_3": {
+        "topic": ".....",
+        "word_1": ".....",
+        "word_2": ".....",
+        "word_3": "....."
+      },
+      "level_4": {
+        "topic": ".....",
+        "word_1": ".....",
+        "word_2": ".....",
+        "word_3": ".....",
+        "word_4": "....."
+      },
+      "level_5": {
+        "topic": ".....",
+        "word_1": ".....",
+        "word_2": ".....",
+        "word_3": ".....",
+        "word_4": ".....",
+        "word_5": "....."
+      }
+    }
+  }
+}
+```
+
+### 4b. type tutor
+```json
+{
+  "result": {
+    "part1": {
+      "question1": { answer, answerAudioLink, script, audioLink },
+      "question2": { answer, answerAudioLink, script, audioLink },
+      "question3": { answer, answerAudioLink, script, audioLink },
+      "question5": { answer, answerAudioLink, script, audioLink },
+      "question6": { answer, answerAudioLink, script, audioLink },
+      "question7": { answer, answerAudioLink, script, audioLink },
+      "question8": { answer, answerAudioLink, script, audioLink },
       ........
     }
   }
