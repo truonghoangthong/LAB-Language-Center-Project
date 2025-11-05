@@ -396,12 +396,25 @@ Success Response (200 OK)
 ```
 ### 2b. type dialogues (
 
-## Naming Convention
+## Naming Convention: `people_{speakerId}_{utteranceNumber}`
 
-**Pattern:** `people_{speakerId}_{utteranceNumber}`
+| Component | Description |
+|-----------|-------------|
+| `speakerId` | Identifies the speaker (1st number) |
+| `utteranceNumber` | Tracks utterance sequence (2nd number) |
 
-- **First number**: Identifies the speaker
-- **Second number**: Tracks their utterance sequence
+### Example
+
+In a dialogue between two speakers:
+
+| Order | Key | Speaker | Turn |
+|-------|-----|---------|------|
+| 1st | `people_1_1` | Speaker 1 | First utterance |
+| 2nd | `people_2_1` | Speaker 2 | First utterance |
+| 3rd | `people_1_2` | Speaker 1 | Second utterance |
+| 4th | `people_2_2` | Speaker 2 | Second utterance |
+
+> 💡 Each speaker maintains their own sequential count while alternating turns.
 
 ### Example Dialogue Flow
 
