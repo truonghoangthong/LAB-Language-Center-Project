@@ -72,6 +72,7 @@ gameRoutes.get("/:type", async (req: Request, res: Response): Promise<any> => {
                 lessonName: data.lessonName || "Unknown Lesson",
                 module: data.module || "game",
                 type: data.type?.toString().trim() || cleanType,
+                lessonId: data.lessonId || "",
                 createAt, // Tên field đúng: createAt
             };
         });
@@ -127,7 +128,7 @@ gameRoutes.get("/:type/:lessonid", async (req: Request, res: Response) => {
             lessonsRef,
             where("module", "==", "game"),
             where("type", "==", cleanType),
-            where("lessionId", "==", cleanLessonId) // hoặc "lessonId"
+            where("lessonId", "==", cleanLessonId) // hoặc "lessonId"
         );
 
         const snapshot = await getDocs(q);
