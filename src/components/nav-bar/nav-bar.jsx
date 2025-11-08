@@ -7,15 +7,15 @@ const Navbar = () => {
       <img src="src/assets/lab-logo.png" alt="Logo" />
       <ul className="nav-links">
         <li>
-          <Icon icon="material-symbols:home-rounded" width="28" height="28" />
+          <Icon icon="material-symbols:home-rounded" width="25" height="25" />
           <span>Home</span>
         </li>
         <li>
-          <Icon icon="fa6-solid:headphones" width="28" height="28" />
+          <Icon icon="fa6-solid:headphones" width="25" height="25" />
           <span>Listening</span>
         </li>
         <li>
-          <Icon icon="famicons:game-controller" width="28" height="28" />
+          <Icon icon="famicons:game-controller" width="25" height="25" />
           <span>Game</span>
         </li>
       </ul>

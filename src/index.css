@@ -22,6 +22,7 @@ body {
   min-height: 100vh;
   background-color: var(--background-color, #FFFFFF);
   color: var(--text-color, #000000);
+  overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
