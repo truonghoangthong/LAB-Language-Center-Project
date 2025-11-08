@@ -3,7 +3,8 @@ import './App.css'
 import SubNavBar from './components/sub-nav-bar/sub-nav-bar'
 import Home from './pages/home/home'
 import Navbar from './components/nav-bar/nav-bar'
-import Title from './components/title/title'
+import Title from './components/listening-title/title'
+import ListenAndClick from './pages/listen_click/listen_click'
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
             <Route path="/test" element={<SubNavBar />} />
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<SubNavBar />} />
-            <Route path="/listening" element={<> <Title /> </>} />
+            <Route path="/listening" element={<>  <ListenAndClick /> </>} />
           </Routes>
         </div>
         <footer className="footer">
