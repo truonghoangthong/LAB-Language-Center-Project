@@ -1,13 +1,15 @@
+// Listening.jsx
 import './listening.css';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
-const ListenAndClick = () => {
+const Listening = () => {
   const [activeBox, setActiveBox] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('finnish_1'); 
   const [topics, setTopics] = useState({});
-  const navigate = useNavigate(); 
+  const [loadingTopics, setLoadingTopics] = useState({});
+  const navigate = useNavigate();
 
   const boxes = [
     { icon: 'fluent:speaker-2-24-filled', title: 'Listen and Click', type: 'click' },
@@ -17,36 +19,38 @@ const ListenAndClick = () => {
 
   const levels = [
     'finnish_1',
-    'finnish_2', 
+    'finnish_2',
     'finnish_3',
     'finnish_4',
     'finnish_for_work',
   ];
 
   const fetchTopics = async (level, type) => {
+    const key = `${level}_${type}`;
+    setLoadingTopics(prev => ({ ...prev, [key]: true }));
     try {
       const res = await fetch(`http://localhost:3000/listening/${level}/${type}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const data = await res.json();
-      setTopics(prev => ({ ...prev, [`${level}_${type}`]: data.result }));
+      setTopics(prev => ({ ...prev, [key]: data.result }));
     } catch (err) {
       console.error('Failed to fetch topics:', err);
-      setTopics(prev => ({ ...prev, [`${level}_${type}`]: [] })); 
+      setTopics(prev => ({ ...prev, [key]: [] }));
+    } finally {
+      setLoadingTopics(prev => ({ ...prev, [key]: false }));
     }
   };
 
   const handleBoxClick = (index) => {
     const box = boxes[index];
     const key = `${selectedLevel}_${box.type}`;
-    if (!topics[key]) {
-      fetchTopics(selectedLevel, box.type);
-    }
+    if (!topics[key]) fetchTopics(selectedLevel, box.type);
     setActiveBox(activeBox === index ? null : index);
   };
 
   const handleLevelClick = (level) => {
     setSelectedLevel(level);
-    setActiveBox(null); 
+    setActiveBox(null);
   };
 
   const handleStart = (topicName, boxType) => {
@@ -60,7 +64,13 @@ const ListenAndClick = () => {
   };
 
   const getCurrentTopics = (boxType) => {
-    return topics[`${selectedLevel}_${boxType}`] || [];
+    const key = `${selectedLevel}_${boxType}`;
+    return topics[key];
+  };
+
+  const isLoading = (boxType) => {
+    const key = `${selectedLevel}_${boxType}`;
+    return loadingTopics[key];
   };
 
   return (
@@ -94,13 +104,13 @@ const ListenAndClick = () => {
       <div className="boxes-container">
         {boxes.map((box, index) => {
           const currentTopics = getCurrentTopics(box.type);
-          const noTopics = currentTopics.length === 0;
+          const loading = isLoading(box.type);
 
           return (
             <div
               key={index}
               className={`box ${activeBox === index ? 'active' : ''}`}
-              onClick={() => !noTopics && handleBoxClick(index)}
+              onClick={() => handleBoxClick(index)}
             >
               <div className="icon-container">
                 <Icon icon={box.icon} width="30" height="30" className="icon" />
@@ -121,26 +131,32 @@ const ListenAndClick = () => {
                 </span>
               </h3>
 
-              {noTopics && <div className="no-topic-box">There is no topic</div>}
+              {/* Hiển thị Loading khi gọi API */}
+              {loading && <div className="no-topic-box">Loading...</div>}
 
               <div className={`topic-wrapper ${activeBox === index ? 'show' : ''}`}>
                 <div className="topic-list">
-                  {currentTopics.map((topic, i) => (
-                    <div key={i} className="topic-item">
-                      <span className="topic-label">
-                        {i + 1}. {topic.lessonName}
-                      </span>
-                      <button
-                        className="start-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStart(topic.lessonName, box.type);
-                        }}
-                      >
-                        Start
-                      </button>
-                    </div>
-                  ))}
+                  {currentTopics &&
+                    currentTopics.map((topic, i) => (
+                      <div key={i} className="topic-item">
+                        <span className="topic-label">
+                          {i + 1}. {topic.lessonName}
+                        </span>
+                        <button
+                          className="start-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStart(topic.lessonName, box.type);
+                          }}
+                        >
+                          Start
+                        </button>
+                      </div>
+                    ))}
+                  {/* Nếu API trả về rỗng */}
+                  {currentTopics && currentTopics.length === 0 && !loading && (
+                    <div className="no-topic-box">There is no topic</div>
+                  )}
                 </div>
               </div>
             </div>
@@ -151,4 +167,4 @@ const ListenAndClick = () => {
   );
 };
 
-export default ListenAndClick;
+export default Listening;
