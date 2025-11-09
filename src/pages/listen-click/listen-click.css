@@ -1,0 +1,75 @@
+/* listen-click.css */
+.listen-click {
+  padding: 20px;
+}
+
+.listen-click .part {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  position: relative;
+}
+
+.listen-click .part-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-weight: bold;
+}
+
+.listen-click .questions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.listen-click .question {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.listen-click .question.correct {
+  background-color: #4caf50;
+  color: white;
+}
+
+.listen-click .question.wrong {
+  background-color: #f44336;
+  color: white;
+}
+
+.listen-click .images-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.listen-click .images-grid img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border 0.3s;
+}
+
+.listen-click .images-grid img.active {
+  border-color: #2196f3;
+}
+
+.listen-click .controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
