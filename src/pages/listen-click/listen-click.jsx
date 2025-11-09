@@ -6,6 +6,7 @@ import "./listen-click.css";
 const ListenAndClick = () => {
   const { level, type, name: paramName } = useParams();
   const [questionsByPart, setQuestionsByPart] = useState({});
+  const [imagesByPart, setImagesByPart] = useState({});
   const [answersByPart, setAnswersByPart] = useState({});
   const [currentPart, setCurrentPart] = useState("part1");
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -19,20 +20,14 @@ const ListenAndClick = () => {
     paramName ||
     (() => {
       const segments = window.location.pathname.split("/").filter(Boolean);
-      return segments.at(-1); // phần cuối URL
+      return segments.at(-1);
     })();
 
-  console.log("useParams values:", { level, type, paramName });
-  console.log("Resolved name from URL:", name);
+  const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
 
   useEffect(() => {
     const fetchAllParts = async () => {
       if (!level || !type || !name) {
-        console.error("Invalid URL: missing level, type, or name.", {
-          level,
-          type,
-          name,
-        });
         setError("Invalid URL: missing level, type, or name.");
         setLoading(false);
         return;
@@ -40,34 +35,31 @@ const ListenAndClick = () => {
 
       setLoading(true);
       setError("");
-
       const newQuestionsByPart = {};
+      const newImagesByPart = {};
       const newAnswersByPart = {};
 
       try {
         for (const part of parts) {
           const url = `http://localhost:3000/listening/${level}/${type}/${name}/${part}`;
-          console.log("Fetching:", url);
-
           const res = await fetch(url);
-          if (!res.ok) {
-            console.warn(`Part ${part} not found`);
-            continue;
-          }
+          if (!res.ok) continue;
 
           const data = await res.json();
           const partData = data?.result?.[part];
-          if (!partData) {
-            console.warn(`Invalid data structure for ${part}`);
-            continue;
-          }
+          if (!partData) continue;
 
-          const questionArr = Object.values(partData);
-          newQuestionsByPart[part] = questionArr;
-          newAnswersByPart[part] = Array(questionArr.length).fill(null);
+          const allItems = Object.values(partData);
+          const shuffledAudios = shuffle(allItems);
+          const shuffledImages = shuffle(allItems);
+
+          newQuestionsByPart[part] = shuffledAudios; // thứ tự audio
+          newImagesByPart[part] = shuffledImages; // thứ tự hình ảnh
+          newAnswersByPart[part] = Array(shuffledAudios.length).fill(null);
         }
 
         setQuestionsByPart(newQuestionsByPart);
+        setImagesByPart(newImagesByPart);
         setAnswersByPart(newAnswersByPart);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -81,8 +73,8 @@ const ListenAndClick = () => {
   }, [level, type, name]);
 
   const questions = questionsByPart[currentPart] || [];
+  const images = imagesByPart[currentPart] || [];
   const answers = answersByPart[currentPart] || [];
-  const hasData = questions.length > 0;
 
   const playAudio = (index) => {
     if (!questions[index] || !audioRef.current) return;
@@ -94,11 +86,16 @@ const ListenAndClick = () => {
   const handleAnswer = (clickedScript) => {
     if (!questions[currentQuestion]) return;
 
-    const isCorrect = clickedScript === questions[currentQuestion].script;
+    const correctScript = questions[currentQuestion].script;
+    const isCorrect = clickedScript === correctScript;
+
     const updatedAnswers = [...answers];
     updatedAnswers[currentQuestion] = isCorrect;
 
-    setAnswersByPart((prev) => ({ ...prev, [currentPart]: updatedAnswers }));
+    setAnswersByPart((prev) => ({
+      ...prev,
+      [currentPart]: updatedAnswers,
+    }));
 
     if (currentQuestion < questions.length - 1) {
       setTimeout(() => {
@@ -113,15 +110,15 @@ const ListenAndClick = () => {
     setCurrentQuestion(0);
   };
 
-  // -------------------- Render --------------------
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
+
+  const hasData = questions.length > 0;
 
   return (
     <div className="listen-click">
       <Title />
 
-      {/* Part navigation */}
       <div className="parts-nav">
         {parts.map((part) => (
           <button
@@ -139,7 +136,6 @@ const ListenAndClick = () => {
         <div className="part active">
           <div className="part-label">{currentPart}</div>
 
-          {/* Question indicators */}
           <div className="questions">
             {answers.map((ans, idx) => (
               <div
@@ -153,22 +149,27 @@ const ListenAndClick = () => {
             ))}
           </div>
 
-          {/* Image grid */}
+          {/* Lưới hình ảnh */}
           <div className="images-grid">
-            {questions.map((q, idx) => (
+            {images.map((img, idx) => (
               <img
                 key={idx}
-                src={q.imageLink}
-                alt={q.script}
-                className={idx === currentQuestion ? "active" : ""}
-                onClick={() =>
-                  idx === currentQuestion && handleAnswer(q.script)
+                src={img.imageLink}
+                alt={img.script}
+                className={
+                  answers[currentQuestion] == null
+                    ? ""
+                    : img.script === questions[currentQuestion].script
+                    ? answers[currentQuestion]
+                      ? "correct"
+                      : "wrong"
+                    : ""
                 }
+                onClick={() => handleAnswer(img.script)}
               />
             ))}
           </div>
 
-          {/* Audio controls */}
           <div className="controls">
             <button onClick={() => playAudio(currentQuestion)}>Start</button>
             <button onClick={() => playAudio(currentQuestion)}>
