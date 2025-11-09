@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
-import SubNavBar from './components/sub-nav-bar/sub-nav-bar'
 import Home from './pages/home/home'
 import Navbar from './components/nav-bar/nav-bar'
 import Title from './components/listening-title/title'
@@ -13,9 +12,9 @@ function App() {
         <Navbar />
         <div className="page-content">
           <Routes>
-            <Route path="/test" element={<SubNavBar />} />
+            <Route path="/test" element={<></>} />
             <Route path="/" element={<Home />} />
-            <Route path="/game" element={<SubNavBar />} />
+            <Route path="/game" element={<></>} />
             <Route path="/listening" element={<>  <ListenAndClick /> </>} />
             <Route path="/listening/:level/:type/:topic" element={<Title />} />
           </Routes>

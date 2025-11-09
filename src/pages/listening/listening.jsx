@@ -1,132 +1,66 @@
 import './listening.css';
 import { Icon } from '@iconify/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 
 const ListenAndClick = () => {
   const [activeBox, setActiveBox] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState('finnish1'); 
+  const [selectedLevel, setSelectedLevel] = useState('finnish_1'); 
+  const [topics, setTopics] = useState({});
   const navigate = useNavigate(); 
 
-  const levelData = {
-    finnish1: {
-      click: [
-        { id: 1, name: 'Kotisanasto 1' },
-        { id: 2, name: 'Kotisanasto 2' },
-      ],
-      drag: [
-        { id: 1, name: 'Verbit 1' },
-        { id: 2, name: 'Verbit 2' },
-      ],
-      dialog: [
-        { id: 1, name: 'Keskustelu A' },
-        { id: 2, name: 'Keskustelu B' },
-      ],
-    },
-    finnish2: {
-      click: [
-        { id: 1, name: 'Advanced Vocabulary 1' },
-        { id: 2, name: 'Advanced Vocabulary 2' },
-      ],
-      drag: [
-        { id: 1, name: 'Complex Verbs 1' },
-        { id: 2, name: 'Complex Verbs 2' },
-      ],
-      dialog: [
-        { id: 1, name: 'Business Dialog' },
-        { id: 2, name: 'Social Dialog' },
-      ],
-    },
-    finnish3: {
-      click: [
-        { id: 1, name: 'Professional Terms 1' },
-        { id: 2, name: 'Professional Terms 2' },
-      ],
-      drag: [
-        { id: 1, name: 'Advanced Verbs 1' },
-        { id: 2, name: 'Advanced Verbs 2' },
-      ],
-      dialog: [
-        { id: 1, name: 'Formal Discussion' },
-        { id: 2, name: 'Interview Practice' },
-      ],
-    },
-    finnish4: {
-      click: [
-        { id: 1, name: 'Expert Vocabulary 1' },
-        { id: 2, name: 'Expert Vocabulary 2' },
-      ],
-      drag: [
-        { id: 1, name: 'Master Verbs 1' },
-        { id: 2, name: 'Master Verbs 2' },
-      ],
-      dialog: [
-        { id: 1, name: 'Academic Discussion' },
-        { id: 2, name: 'Debate Practice' },
-      ],
-    },
-    finnishforwork: {
-      click: [
-        { id: 1, name: 'Workplace Terms 1' },
-        { id: 2, name: 'Workplace Terms 2' },
-      ],
-      drag: [
-        { id: 1, name: 'Professional Verbs' },
-        { id: 2, name: 'Business Phrases' },
-      ],
-      dialog: [
-        { id: 1, name: 'Meeting Practice' },
-        { id: 2, name: 'Client Conversation' },
-      ],
-    },
-  };
-
   const boxes = [
-    {
-      icon: 'fluent:speaker-2-24-filled',
-      title: 'Listen and Click',
-      type: 'click',
-    },
-    {
-      icon: 'fluent:hand-left-28-filled',
-      title: 'Listen and Drag',
-      type: 'drag',
-    },
-    {
-      icon: 'fluent:chat-bubbles-question-24-filled',
-      title: 'Listen and Dialog',
-      type: 'dialog',
-    },
+    { icon: 'fluent:speaker-2-24-filled', title: 'Listen and Click', type: 'click' },
+    { icon: 'fluent:hand-left-28-filled', title: 'Listen and Drag', type: 'drag' },
+    { icon: 'fluent:chat-bubbles-question-24-filled', title: 'Listen and Dialog', type: 'dialogues' },
   ];
 
   const levels = [
-    'finnish1',
-    'finnish2', 
-    'finnish3',
-    'finnish4',
-    'finnishforwork',
+    'finnish_1',
+    'finnish_2', 
+    'finnish_3',
+    'finnish_4',
+    'finnish_for_work',
   ];
 
+  const fetchTopics = async (level, type) => {
+    try {
+      const res = await fetch(`http://localhost:3000/listening/${level}/${type}`);
+      if (!res.ok) throw new Error('Network response was not ok');
+      const data = await res.json();
+      setTopics(prev => ({ ...prev, [`${level}_${type}`]: data.result }));
+    } catch (err) {
+      console.error('Failed to fetch topics:', err);
+      setTopics(prev => ({ ...prev, [`${level}_${type}`]: [] })); 
+    }
+  };
+
   const handleBoxClick = (index) => {
+    const box = boxes[index];
+    const key = `${selectedLevel}_${box.type}`;
+    if (!topics[key]) {
+      fetchTopics(selectedLevel, box.type);
+    }
     setActiveBox(activeBox === index ? null : index);
   };
 
   const handleLevelClick = (level) => {
     setSelectedLevel(level);
+    setActiveBox(null); 
   };
 
-  const handleStart = (boxType, topicName) => {
+  const handleStart = (topicName, boxType) => {
     const path = `/listening/${selectedLevel}/${boxType}/${topicName.toLowerCase().replace(/\s+/g, '')}`;
     navigate(path);
   };
 
   const getDisplayName = (label) => {
-    if (label === 'finnishforwork') return 'Finnish for Work';
-    return label.replace('finnish', 'Finnish ').toUpperCase();
+    if (label === 'finnish_for_work') return 'Finnish for Work';
+    return label.replace('finnish_', 'Finnish ').toUpperCase();
   };
 
   const getCurrentTopics = (boxType) => {
-    return levelData[selectedLevel]?.[boxType] || [];
+    return topics[`${selectedLevel}_${boxType}`] || [];
   };
 
   return (
@@ -147,11 +81,7 @@ const ListenAndClick = () => {
               <span className="button-label">{getDisplayName(level)}</span>
               <span
                 className={`button-index ${
-                  index < 2
-                    ? 'green'
-                    : index < 4
-                    ? 'yellow'
-                    : 'red'
+                  index < 2 ? 'green' : index < 4 ? 'yellow' : 'red'
                 }`}
               >
                 {index + 1}
@@ -162,57 +92,60 @@ const ListenAndClick = () => {
       </div>
 
       <div className="boxes-container">
-        {boxes.map((box, index) => (
-          <div
-            key={index}
-            className={`box ${activeBox === index ? 'active' : ''}`}
-            onClick={() => handleBoxClick(index)}
-          >
-            <div className="icon-container">
-              <Icon icon={box.icon} width="30" height="30" className="icon" />
-            </div>
+        {boxes.map((box, index) => {
+          const currentTopics = getCurrentTopics(box.type);
+          const noTopics = currentTopics.length === 0;
 
-            <h3 className="box-title">
-              Listen and{' '}
-              <span
-                className={
-                  box.title.includes('Click')
-                    ? 'click-text'
-                    : box.title.includes('Drag')
-                    ? 'drag-text'
-                    : 'dialog-text'
-                }
-              >
-                {box.title.split(' ')[2]}
-              </span>
-            </h3>
-
+          return (
             <div
-              className={`topic-wrapper ${
-                activeBox === index ? 'show' : ''
-              }`}
+              key={index}
+              className={`box ${activeBox === index ? 'active' : ''}`}
+              onClick={() => !noTopics && handleBoxClick(index)}
             >
-              <div className="topic-list">
-                {getCurrentTopics(box.type).map((topic) => (
-                  <div key={topic.id} className="topic-item">
-                    <span className="topic-label">
-                      {topic.id}. {topic.name}
-                    </span>
-                    <button
-                      className="start-btn"
-                      onClick={(e) => {
-                        e.stopPropagation(); 
-                        handleStart(box.type, topic.name);
-                      }}
-                    >
-                      Start
-                    </button>
-                  </div>
-                ))}
+              <div className="icon-container">
+                <Icon icon={box.icon} width="30" height="30" className="icon" />
+              </div>
+
+              <h3 className="box-title">
+                Listen and{' '}
+                <span
+                  className={
+                    box.title.includes('Click')
+                      ? 'click-text'
+                      : box.title.includes('Drag')
+                      ? 'drag-text'
+                      : 'dialog-text'
+                  }
+                >
+                  {box.title.split(' ')[2]}
+                </span>
+              </h3>
+
+              {noTopics && <div className="no-topic-box">There is no topic</div>}
+
+              <div className={`topic-wrapper ${activeBox === index ? 'show' : ''}`}>
+                <div className="topic-list">
+                  {currentTopics.map((topic, i) => (
+                    <div key={i} className="topic-item">
+                      <span className="topic-label">
+                        {i + 1}. {topic.lessonName}
+                      </span>
+                      <button
+                        className="start-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStart(topic.lessonName, box.type);
+                        }}
+                      >
+                        Start
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
