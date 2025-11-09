@@ -4,7 +4,7 @@ import SubNavBar from './components/sub-nav-bar/sub-nav-bar'
 import Home from './pages/home/home'
 import Navbar from './components/nav-bar/nav-bar'
 import Title from './components/listening-title/title'
-import ListenAndClick from './pages/listen_click/listen_click'
+import ListenAndClick from './pages/listening/listening'
 
 function App() {
   return (
@@ -17,6 +17,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<SubNavBar />} />
             <Route path="/listening" element={<>  <ListenAndClick /> </>} />
+            <Route path="/listening/:level/:type/:topic" element={<Title />} />
           </Routes>
         </div>
         <footer className="footer">
