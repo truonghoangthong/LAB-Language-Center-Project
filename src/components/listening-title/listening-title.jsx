@@ -1,5 +1,5 @@
 import React from "react";
-import "./title.css";
+import "./listening-title.css";
 
 const Title = ({ type = "click", lesson = "Kotisanasto 1", instruction = "Kuuntele seuraava keskustelu" }) => {
   if (!type) {

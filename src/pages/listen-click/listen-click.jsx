@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import Title from "../../components/listening-title/title";
+import Title from "../../components/listening-title/listening-title";
 import "./listen-click.css";
 
 const ListenAndClick = () => {
@@ -117,7 +117,19 @@ const ListenAndClick = () => {
 
   return (
     <div className="listen-click">
-      <Title />
+      <Title
+        type={type}
+        lesson={
+          type === "click" ? "Kotisanasto 1" :
+          type === "drag" ? "Kotisanasto 2" :
+          "Kotisanasto 3"
+        }
+        instruction={
+          type === "click" ? "Klikkaa oikeaa kuvaa" :
+          type === "drag" ? "Vedä sana oikeaan paikkaan" :
+          "Kuuntele keskustelu ja valitse vastaus"
+        }
+      />
 
       <div className="parts-nav">
         {parts.map((part) => (
@@ -149,7 +161,6 @@ const ListenAndClick = () => {
             ))}
           </div>
 
-          {/* Lưới hình ảnh */}
           <div className="images-grid">
             {images.map((img, idx) => (
               <img

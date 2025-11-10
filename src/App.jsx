@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import Home from './pages/home/home'
 import Navbar from './components/nav-bar/nav-bar'
-import Title from './components/listening-title/title'
+import Title from './components/listening-title/listening-title'
 import Listening from './pages/listening/listening'
 import ListenAndClick from './pages/listen-click/listen-click'
 

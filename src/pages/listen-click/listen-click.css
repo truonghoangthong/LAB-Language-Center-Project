@@ -35,27 +35,26 @@
 
 .listen-click .parts-nav button {
   padding: 8px 16px;
-  border: 1px solid #90caf9;
+  border: 1px solid #000;
   border-radius: 8px;
-  background-color: #e3f2fd;
+  background-color: #fff;
   cursor: pointer;
   transition: all 0.25s ease;
   font-weight: 600;
-  color: #1565c0;
+  color: #000;
   font-size: 14px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+	font-family: var(--font-body);
 }
 
 .listen-click .parts-nav button:hover:not(:disabled) {
-  background-color: #bbdefb;
   transform: translateY(-2px);
 }
 
 .listen-click .parts-nav button.active {
-  background: linear-gradient(135deg, #2196f3, #1976d2);
-  color: #fff;
-  border-color: #1976d2;
+  color: #01C0E2;
   box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4);
+  border: 3px solid #2196f3;
 }
 
 .listen-click .parts-nav button:disabled {
@@ -136,11 +135,12 @@
 }
 
 .listen-click .controls button {
+  font-family: var(--font-body);
   padding: 8px 16px;
-  background-color: #2196f3;
-  color: #fff;
+  background-color: rgba(0, 190, 223, 0.1); 
+  color: #000;
   border: none;
-  border-radius: 6px;
+  border-radius: 20px;
   cursor: pointer;
   transition: background-color 0.25s, transform 0.15s;
   font-size: 14px;
