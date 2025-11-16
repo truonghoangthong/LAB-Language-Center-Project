@@ -1,47 +1,83 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
-import Title from "../../components/listening-title/listening-title";
-import "./listen-click.css";
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import Title from '../../components/listening-title/listening-title';
+import './listen-click.css';
 
 const ListenAndClick = () => {
-  const { level, type, name: paramName } = useParams();
+  const { level, type: paramType, name: paramName } = useParams();
+  const location = useLocation();
+  const incomingState = location.state || {};
+
+  const [lessonInfo, setLessonInfo] = useState({
+    type: incomingState.type || '',
+    lessonName: incomingState.lessonName || '',
+  });
+
   const [questionsByPart, setQuestionsByPart] = useState({});
   const [imagesByPart, setImagesByPart] = useState({});
   const [answersByPart, setAnswersByPart] = useState({});
-  const [currentPart, setCurrentPart] = useState("part1");
+  const [currentPart, setCurrentPart] = useState('part1');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const audioRef = useRef(null);
 
-  const parts = ["part1", "part2", "part3"];
+  const parts = ['part1', 'part2', 'part3'];
 
   const name =
     paramName ||
     (() => {
-      const segments = window.location.pathname.split("/").filter(Boolean);
+      const segments = window.location.pathname.split('/').filter(Boolean);
       return segments.at(-1);
     })();
 
   const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
 
   useEffect(() => {
+    if (lessonInfo.type && lessonInfo.lessonName) return;
+
+    if (!level || !paramType) return;
+
+    const fetchLessonInfo = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/listening/${level}/${paramType}`);
+        const data = await res.json();
+
+        const matchedLesson = data.result.find(
+          (lesson) => lesson.lessonName.toLowerCase() === name.toLowerCase()
+        );
+
+        if (matchedLesson) {
+          setLessonInfo({ type: matchedLesson.type, lessonName: matchedLesson.lessonName });
+        } else {
+          setLessonInfo({ type: paramType, lessonName: name });
+        }
+      } catch (err) {
+        console.error('Error fetching lesson info:', err);
+        setLessonInfo({ type: paramType, lessonName: name });
+      }
+    };
+
+    fetchLessonInfo();
+  }, [level, paramType, name, lessonInfo]);
+
+  useEffect(() => {
     const fetchAllParts = async () => {
-      if (!level || !type || !name) {
-        setError("Invalid URL: missing level, type, or name.");
+      if (!level || !paramType || !name) {
+        setError('Invalid URL: missing level, type, or name.');
         setLoading(false);
         return;
       }
 
       setLoading(true);
-      setError("");
+      setError('');
       const newQuestionsByPart = {};
       const newImagesByPart = {};
       const newAnswersByPart = {};
 
       try {
         for (const part of parts) {
-          const url = `http://localhost:3000/listening/${level}/${type}/${name}/${part}`;
+          const url = `http://localhost:3000/listening/${level}/${paramType}/${name}/${part}`;
           const res = await fetch(url);
           if (!res.ok) continue;
 
@@ -53,8 +89,8 @@ const ListenAndClick = () => {
           const shuffledAudios = shuffle(allItems);
           const shuffledImages = shuffle(allItems);
 
-          newQuestionsByPart[part] = shuffledAudios; // thứ tự audio
-          newImagesByPart[part] = shuffledImages; // thứ tự hình ảnh
+          newQuestionsByPart[part] = shuffledAudios;
+          newImagesByPart[part] = shuffledImages;
           newAnswersByPart[part] = Array(shuffledAudios.length).fill(null);
         }
 
@@ -62,15 +98,15 @@ const ListenAndClick = () => {
         setImagesByPart(newImagesByPart);
         setAnswersByPart(newAnswersByPart);
       } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Failed to load lesson data.");
+        console.error('Fetch error:', err);
+        setError('Failed to load lesson data.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchAllParts();
-  }, [level, type, name]);
+  }, [level, paramType, name]);
 
   const questions = questionsByPart[currentPart] || [];
   const images = imagesByPart[currentPart] || [];
@@ -80,7 +116,7 @@ const ListenAndClick = () => {
     if (!questions[index] || !audioRef.current) return;
     const { audioLink } = questions[index];
     audioRef.current.src = audioLink;
-    audioRef.current.play().catch((err) => console.warn("Audio error:", err));
+    audioRef.current.play().catch((err) => console.warn('Audio error:', err));
   };
 
   const handleAnswer = (clickedScript) => {
@@ -115,27 +151,24 @@ const ListenAndClick = () => {
 
   const hasData = questions.length > 0;
 
+  const titleText = lessonInfo.lessonName;
+
+  const instructionText =
+    lessonInfo.type === 'click'
+      ? 'Klikkaa oikeaa kuvaa'
+      : lessonInfo.type === 'drag'
+      ? 'Vedä sana oikeaan paikkaan'
+      : 'Kuuntele keskustelu ja valitse vastaus';
+
   return (
     <div className="listen-click">
-      <Title
-        type={type}
-        lesson={
-          type === "click" ? "Kotisanasto 1" :
-          type === "drag" ? "Kotisanasto 2" :
-          "Kotisanasto 3"
-        }
-        instruction={
-          type === "click" ? "Klikkaa oikeaa kuvaa" :
-          type === "drag" ? "Vedä sana oikeaan paikkaan" :
-          "Kuuntele keskustelu ja valitse vastaus"
-        }
-      />
+      <Title type={lessonInfo.type} lesson={titleText} instruction={instructionText} />
 
       <div className="parts-nav">
         {parts.map((part) => (
           <button
             key={part}
-            className={currentPart === part ? "active" : ""}
+            className={currentPart === part ? 'active' : ''}
             onClick={() => handlePartChange(part)}
             disabled={!questionsByPart[part]}
           >
@@ -153,10 +186,10 @@ const ListenAndClick = () => {
               <div
                 key={idx}
                 className={`question ${
-                  ans === true ? "correct" : ans === false ? "wrong" : ""
+                  ans === true ? 'correct' : ans === false ? 'wrong' : ''
                 }`}
               >
-                {ans === true ? "✔" : ans === false ? "✖" : idx + 1}
+                {ans === true ? '✔' : ans === false ? '✖' : idx + 1}
               </div>
             ))}
           </div>
@@ -169,12 +202,12 @@ const ListenAndClick = () => {
                 alt={img.script}
                 className={
                   answers[currentQuestion] == null
-                    ? ""
+                    ? ''
                     : img.script === questions[currentQuestion].script
                     ? answers[currentQuestion]
-                      ? "correct"
-                      : "wrong"
-                    : ""
+                      ? 'correct'
+                      : 'wrong'
+                    : ''
                 }
                 onClick={() => handleAnswer(img.script)}
               />
@@ -183,9 +216,7 @@ const ListenAndClick = () => {
 
           <div className="controls">
             <button onClick={() => playAudio(currentQuestion)}>Start</button>
-            <button onClick={() => playAudio(currentQuestion)}>
-              Listen Again
-            </button>
+            <button onClick={() => playAudio(currentQuestion)}>Listen Again</button>
           </div>
 
           <audio ref={audioRef} />

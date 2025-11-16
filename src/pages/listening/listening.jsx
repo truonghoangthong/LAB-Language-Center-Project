@@ -1,4 +1,3 @@
-// Listening.jsx
 import './listening.css';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
@@ -6,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Listening = () => {
   const [activeBox, setActiveBox] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState('finnish_1'); 
+  const [selectedLevel, setSelectedLevel] = useState('finnish_1');
   const [topics, setTopics] = useState({});
   const [loadingTopics, setLoadingTopics] = useState({});
   const navigate = useNavigate();
@@ -53,9 +52,9 @@ const Listening = () => {
     setActiveBox(null);
   };
 
-  const handleStart = (topicName, boxType) => {
+  const handleStart = (topicName, boxType, lessonName) => {
     const path = `/listening/${selectedLevel}/${boxType}/${topicName.toLowerCase().replace(/\s+/g, '')}`;
-    navigate(path);
+    navigate(path, { state: { type: boxType, lessonName } });
   };
 
   const getDisplayName = (label) => {
@@ -131,7 +130,6 @@ const Listening = () => {
                 </span>
               </h3>
 
-              {/* Hiển thị Loading khi gọi API */}
               {loading && <div className="no-topic-box">Loading...</div>}
 
               <div className={`topic-wrapper ${activeBox === index ? 'show' : ''}`}>
@@ -146,14 +144,13 @@ const Listening = () => {
                           className="start-btn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleStart(topic.lessonName, box.type);
+                            handleStart(topic.lessonName, box.type, topic.lessonName);
                           }}
                         >
                           Start
                         </button>
                       </div>
                     ))}
-                  {/* Nếu API trả về rỗng */}
                   {currentTopics && currentTopics.length === 0 && !loading && (
                     <div className="no-topic-box">There is no topic</div>
                   )}

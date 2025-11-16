@@ -1,7 +1,7 @@
 import React from "react";
 import "./listening-title.css";
 
-const Title = ({ type = "click", lesson = "Kotisanasto 1", instruction = "Kuuntele seuraava keskustelu" }) => {
+const Title = ({ type, lesson, instruction}) => {
   if (!type) {
     console.error("[Title] 'type' prop is required");
     return null; 

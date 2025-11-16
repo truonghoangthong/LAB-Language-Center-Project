@@ -18,7 +18,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<></>} />
             <Route path="/listening" element={<>  <Listening   /> </>} />
-            <Route path="/listening/:level/:type/:topic" element={<ListenAndClick />} />
+            <Route path="/listening/:level/click/:topic" element={<ListenAndClick />} />
+            <Route path="/listening/:level/dialogues/:topic" element={<ListenDialog />} />
           </Routes>
         </div>
         <footer className="footer">
