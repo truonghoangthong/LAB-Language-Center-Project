@@ -425,6 +425,7 @@ people_1_1 → people_2_1 → people_1_2 → people_2_2
 {
   "result": {
     "part1": {
+      "introduction": { script, audioLink },
       "people_1_1": { imageLink, script, audioLink },
       "people_1_2": { imageLink, script, audioLink },
       "people_1_3": { imageLink, script, audioLink },
