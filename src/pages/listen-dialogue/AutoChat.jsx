@@ -1,19 +1,25 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
 import ChatBubble from "./ChatBubble";
+import AudioPlayer from "../../components/audio-player/audio-player";
 import "./listenDialog.css";
 
-export default function AutoChat({ showTranscript }) {
+const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
   const [messages, setMessages] = useState([]);
   const [displayMsgs, setDisplayMsgs] = useState([]);
   const [index, setIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [typingSide, setTypingSide] = useState("left");
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
   const [loading, setLoading] = useState(true);
   const [cooldown, setCooldown] = useState(false);
+  const [started, setStarted] = useState(false);
 
   const chatRef = useRef(null);
   const audioRef = useRef(new Audio());
+
+  useImperativeHandle(ref, () => ({
+    handleStart,
+  }));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -54,54 +60,74 @@ export default function AutoChat({ showTranscript }) {
     return () => controller.abort();
   }, []);
 
-  const playAudio = useCallback(
-    (msg, onFinish) => {
-      const audio = audioRef.current;
-      if (!msg.audio) {
-        setTimeout(onFinish, 800);
-        return;
-      }
+  const playAudio = useCallback((msg, onFinish) => {
+    const audio = audioRef.current;
 
-      audio.src = msg.audio;
-      audio.onended = () => {
-        audio.onended = null; 
+    if (!msg.audio) {
+      setAudioPlaying(false);
+      setTimeout(onFinish, 800);
+      return;
+    }
+
+    audio.src = msg.audio;
+    audio.onended = () => {
+      setAudioPlaying(false);
+      audio.onended = null;
+      onFinish();
+    };
+
+    audio
+      .play()
+      .then(() => setAudioPlaying(true))
+      .catch(() => {
+        setAudioPlaying(false);
         onFinish();
-      };
-
-      audio
-        .play()
-        .catch(() => {
-          audio.onended = null;
-          onFinish();
-        });
-    },
-    []
-  );
+      });
+  }, []);
 
   useEffect(() => {
-    if (!isPlaying || loading || index >= messages.length) return;
+    if (
+      loading ||
+      !started || 
+      index >= messages.length ||
+      !showTranscript
+    )
+      return;
+
+    const msg = messages[index];
+    setIsTyping(true);
+    setTypingSide(msg.speaker === "1" ? "left" : "right");
+
+    const typingDelay = 600 + Math.random() * 600;
+    const timer = setTimeout(() => {
+      setIsTyping(false);
+      setDisplayMsgs((prev) => [...prev, msg]);
+    }, typingDelay);
+
+    return () => clearTimeout(timer);
+  }, [index, messages, showTranscript, loading, started]);
+
+  useEffect(() => {
+    if (
+      loading ||
+      !started || 
+      index >= messages.length
+    )
+      return;
 
     const msg = messages[index];
 
-    const next = () => setIndex((i) => i + 1);
-
     if (showTranscript) {
-      setIsTyping(true);
-      setTypingSide(msg.speaker === "1" ? "left" : "right");
-
-      const typingDelay = 600 + Math.random() * 600;
-
-      const timer = setTimeout(() => {
-        setIsTyping(false);
+      if (!isTyping && displayMsgs.length === index + 1) {
+        playAudio(msg, () => setIndex((i) => i + 1));
+      }
+    } else {
+      if (displayMsgs.length === index) {
         setDisplayMsgs((prev) => [...prev, msg]);
-        playAudio(msg, next);
-      }, typingDelay);
-
-      return () => clearTimeout(timer);
+        playAudio(msg, () => setIndex((i) => i + 1));
+      }
     }
-
-    playAudio(msg, next);
-  }, [index, isPlaying, messages, showTranscript, playAudio, loading]);
+  }, [index, messages, loading, isTyping, displayMsgs.length, playAudio, started]);
 
   useEffect(() => {
     if (chatRef.current)
@@ -111,7 +137,7 @@ export default function AutoChat({ showTranscript }) {
       });
   }, [displayMsgs, isTyping]);
 
-  const handleStart = () => {
+  function handleStart() {
     if (cooldown || loading) return;
 
     setCooldown(true);
@@ -119,8 +145,8 @@ export default function AutoChat({ showTranscript }) {
 
     setDisplayMsgs([]);
     setIndex(0);
-    setIsPlaying(true);
-  };
+    setStarted(true);
+  }
 
   if (loading)
     return <div style={{ textAlign: "center", padding: 20 }}>Loading...</div>;
@@ -132,8 +158,10 @@ export default function AutoChat({ showTranscript }) {
           <ChatBubble
             key={i}
             avatar={msg.avatar}
-            text={showTranscript ? msg.text : ""}
             isLeft={msg.speaker === "1"}
+            text={showTranscript ? msg.text : ""}
+            showAudioPlayer={!showTranscript}
+            isPlaying={audioPlaying && i === displayMsgs.length - 1}
           />
         ))}
 
@@ -145,12 +173,8 @@ export default function AutoChat({ showTranscript }) {
           </div>
         )}
       </div>
-
-      <div style={{ marginTop: 12 }}>
-        <button disabled={cooldown || loading} onClick={handleStart}>
-          {loading ? "Loading..." : "Start / Replay"}
-        </button>
-      </div>
     </div>
   );
-}
+});
+
+export default AutoChat;
