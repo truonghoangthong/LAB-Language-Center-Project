@@ -5,6 +5,7 @@ import Navbar from './components/nav-bar/nav-bar'
 import Title from './components/listening-title/listening-title'
 import Listening from './pages/listening/listening'
 import ListenAndClick from './pages/listen-click/listen-click'
+import ListenDialog from './pages/listen-dialogue/listenDialog'
 
 function App() {
   return (
@@ -13,7 +14,7 @@ function App() {
         <Navbar />
         <div className="page-content">
           <Routes>
-            <Route path="/test" element={<></>} />
+            <Route path="/test" element={<><ListenDialog /></>} />
             <Route path="/" element={<Home />} />
             <Route path="/game" element={<></>} />
             <Route path="/listening" element={<>  <Listening   /> </>} />
