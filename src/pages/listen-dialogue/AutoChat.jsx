@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
 import ChatBubble from "./ChatBubble";
-import AudioPlayer from "../../components/audio-player/audio-player";
 import "./listenDialog.css";
 
 const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
@@ -20,6 +19,15 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
   useImperativeHandle(ref, () => ({
     handleStart,
   }));
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -85,49 +93,24 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
       });
   }, []);
 
-  useEffect(() => {
-    if (
-      loading ||
-      !started || 
-      index >= messages.length ||
-      !showTranscript
-    )
-      return;
-
-    const msg = messages[index];
-    setIsTyping(true);
-    setTypingSide(msg.speaker === "1" ? "left" : "right");
-
-    const typingDelay = 600 + Math.random() * 600;
-    const timer = setTimeout(() => {
-      setIsTyping(false);
-      setDisplayMsgs((prev) => [...prev, msg]);
-    }, typingDelay);
-
-    return () => clearTimeout(timer);
-  }, [index, messages, showTranscript, loading, started]);
+  // Bỏ effect reset displayMsgs và index khi toggle showTranscript
+  // useEffect(() => {
+  //   setDisplayMsgs([]);
+  //   setIndex(0);
+  // }, [showTranscript]);
 
   useEffect(() => {
-    if (
-      loading ||
-      !started || 
-      index >= messages.length
-    )
-      return;
+    if (loading || !started || index >= messages.length) return;
 
     const msg = messages[index];
 
-    if (showTranscript) {
-      if (!isTyping && displayMsgs.length === index + 1) {
-        playAudio(msg, () => setIndex((i) => i + 1));
-      }
-    } else {
-      if (displayMsgs.length === index) {
-        setDisplayMsgs((prev) => [...prev, msg]);
-        playAudio(msg, () => setIndex((i) => i + 1));
-      }
+    // Ngừng phụ thuộc vào showTranscript để chạy chat
+    if (displayMsgs.length === index) {
+      setDisplayMsgs(prev => [...prev, msg]);
+      playAudio(msg, () => setIndex(i => i + 1));
     }
-  }, [index, messages, loading, isTyping, displayMsgs.length, playAudio, started]);
+
+  }, [index, messages, loading, displayMsgs.length, playAudio, started]);
 
   useEffect(() => {
     if (chatRef.current)
