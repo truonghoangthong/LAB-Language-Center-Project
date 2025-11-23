@@ -1,45 +1,58 @@
-import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import Title from '../../components/listening-title/listening-title';
-import './listen-click.css';
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import Title from "../../components/listening-title/listening-title";
+import AnswerPopup from "../../components/AnswerPopup/AnswerPopup";
+import confetti from "canvas-confetti";
+import "./listen-click.css";
+
+const PARTS = ["part1", "part2", "part3"];
+const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
 
 const ListenAndClick = () => {
   const { level, topic } = useParams();
 
-  const [lessonInfo, setLessonInfo] = useState({
-    type: 'click',  
-    lessonName: topic || '',
+  const [lessonInfo] = useState({
+    type: "click",
+    lessonName: topic || "",
   });
 
   const [questionsByPart, setQuestionsByPart] = useState({});
   const [imagesByPart, setImagesByPart] = useState({});
   const [answersByPart, setAnswersByPart] = useState({});
-  const [currentPart, setCurrentPart] = useState('part1');
+  const [currentPart, setCurrentPart] = useState("part1");
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupData, setPopupData] = useState({
+    isCorrect: false,
+    image: "",
+    script: "",
+    ipa: "",
+  });
+  const [isDone, setIsDone] = useState(false);
+  const [hasCelebrated, setHasCelebrated] = useState(false);
+
   const audioRef = useRef(null);
-
-  const parts = ['part1', 'part2', 'part3'];
-
-  const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
+  const celebrationRef = useRef(null);
 
   useEffect(() => {
     const fetchAllParts = async () => {
       if (!level || !topic) {
-        setError('Invalid URL: missing level or topic.');
+        setError("Invalid URL: missing level or topic.");
         setLoading(false);
         return;
       }
 
       setLoading(true);
-      setError('');
+      setError("");
+
       const newQuestionsByPart = {};
       const newImagesByPart = {};
       const newAnswersByPart = {};
 
       try {
-        for (const part of parts) {
+        for (const part of PARTS) {
           const url = `http://localhost:3000/listening/${level}/click/${topic}/${part}`;
           const res = await fetch(url);
           if (!res.ok) continue;
@@ -49,25 +62,20 @@ const ListenAndClick = () => {
           if (!partData) continue;
 
           const allItems = Object.values(partData);
-          const shuffledAudios = shuffle(allItems);
-          const shuffledImages = shuffle(allItems);
-
-          newQuestionsByPart[part] = shuffledAudios;
-          newImagesByPart[part] = shuffledImages;
-          newAnswersByPart[part] = Array(shuffledAudios.length).fill(null);
+          newQuestionsByPart[part] = shuffle(allItems);
+          newImagesByPart[part] = shuffle(allItems);
+          newAnswersByPart[part] = Array(allItems.length).fill(null);
         }
-
         setQuestionsByPart(newQuestionsByPart);
         setImagesByPart(newImagesByPart);
         setAnswersByPart(newAnswersByPart);
       } catch (err) {
-        console.error('Fetch error:', err);
-        setError('Failed to load lesson data.');
+        console.error("Fetch error:", err);
+        setError("Failed to load lesson data.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchAllParts();
   }, [level, topic]);
 
@@ -77,17 +85,14 @@ const ListenAndClick = () => {
 
   const playAudio = (index) => {
     if (!questions[index] || !audioRef.current) return;
-    const { audioLink } = questions[index];
-    audioRef.current.src = audioLink;
-    audioRef.current.play().catch((err) => console.warn('Audio error:', err));
+    audioRef.current.src = questions[index].audioLink;
+    audioRef.current.play().catch(() => {});
   };
 
   const handleAnswer = (clickedScript) => {
     if (!questions[currentQuestion]) return;
 
-    const correctScript = questions[currentQuestion].script;
-    const isCorrect = clickedScript === correctScript;
-
+    const isCorrect = clickedScript === questions[currentQuestion].script;
     const updatedAnswers = [...answers];
     updatedAnswers[currentQuestion] = isCorrect;
 
@@ -96,42 +101,73 @@ const ListenAndClick = () => {
       [currentPart]: updatedAnswers,
     }));
 
+    setPopupData({
+      isCorrect,
+      image: questions[currentQuestion].imageLink,
+      script: questions[currentQuestion].script,
+      ipa: questions[currentQuestion].ipa || "",
+    });
+    setShowPopup(true);
+  };
+
+  const closePopup = () => setShowPopup(false);
+
+  const goNextAfterCorrect = () => {
+    closePopup();
     if (currentQuestion < questions.length - 1) {
-      setTimeout(() => {
-        setCurrentQuestion((prev) => prev + 1);
-        playAudio(currentQuestion + 1);
-      }, 600);
+      setCurrentQuestion(currentQuestion + 1);
+      playAudio(currentQuestion + 1);
+    } else {
+      setIsDone(true);
     }
   };
+
+  useEffect(() => {
+    if (!isDone || hasCelebrated) return;
+
+    confetti({ particleCount: 160, spread: 75, origin: { y: 0.6 } });
+    try {
+      if (!celebrationRef.current) {
+        celebrationRef.current = new Audio("/sounds/celebration.mp3");
+      }
+      celebrationRef.current.currentTime = 0;
+      celebrationRef.current.play().catch(() => {});
+    } catch (e) {
+      console.warn("celebration sound error:", e);
+    }
+    setHasCelebrated(true);
+  }, [isDone, hasCelebrated]);
 
   const handlePartChange = (part) => {
     setCurrentPart(part);
     setCurrentQuestion(0);
+    setIsDone(false);
+    setHasCelebrated(false);
+    setShowPopup(false);
   };
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
 
-  const hasData = questions.length > 0;
-
-
-  const titleText = lessonInfo.lessonName;
-  const instructionText =
-    lessonInfo.type === 'click'
-      ? 'Klikkaa oikeaa kuvaa'
-      : lessonInfo.type === 'drag'
-      ? 'Vedä sana oikeaan paikkaan'
-      : 'Kuuntele keskustelu ja valitse vastaus';
-
   return (
     <div className="listen-click">
-      <Title type={lessonInfo.type} lesson={titleText} instruction={instructionText} />
+      <Title
+        type={lessonInfo.type}
+        lesson={lessonInfo.lessonName}
+        instruction={
+          lessonInfo.type === "click"
+            ? "Klikkaa oikeaa kuvaa"
+            : lessonInfo.type === "drag"
+            ? "Vedä sana oikeaan paikkaan"
+            : "Kuuntele keskustelu ja valitse vastaus"
+        }
+      />
 
       <div className="parts-nav">
-        {parts.map((part) => (
+        {PARTS.map((part) => (
           <button
             key={part}
-            className={currentPart === part ? 'active' : ''}
+            className={currentPart === part ? "active" : ""}
             onClick={() => handlePartChange(part)}
             disabled={!questionsByPart[part]}
           >
@@ -140,7 +176,7 @@ const ListenAndClick = () => {
         ))}
       </div>
 
-      {hasData ? (
+      {questions.length > 0 ? (
         <div className="part active">
           <div className="part-label">{currentPart}</div>
 
@@ -149,10 +185,10 @@ const ListenAndClick = () => {
               <div
                 key={idx}
                 className={`question ${
-                  ans === true ? 'correct' : ans === false ? 'wrong' : ''
-                }`}
+                  ans === true ? "correct" : ans === false ? "wrong" : ""
+                } ${currentQuestion === idx ? "active" : ""}`}
               >
-                {ans === true ? '✔' : ans === false ? '✖' : idx + 1}
+                {ans === true ? "✔" : ans === false ? "✖" : idx + 1}
               </div>
             ))}
           </div>
@@ -165,14 +201,15 @@ const ListenAndClick = () => {
                 alt={img.script}
                 className={
                   answers[currentQuestion] == null
-                    ? ''
+                    ? ""
                     : img.script === questions[currentQuestion].script
                     ? answers[currentQuestion]
-                      ? 'correct'
-                      : 'wrong'
-                    : ''
+                      ? "correct"
+                      : "wrong"
+                    : ""
                 }
                 onClick={() => handleAnswer(img.script)}
+                loading="lazy"
               />
             ))}
           </div>
@@ -186,6 +223,62 @@ const ListenAndClick = () => {
         </div>
       ) : (
         <div className="no-data">No data found for {currentPart}</div>
+      )}
+
+      {showPopup && (
+        <AnswerPopup
+          isCorrect={popupData.isCorrect}
+          image={popupData.image}
+          script={popupData.script}
+          ipa={popupData.ipa}
+          onClose={popupData.isCorrect ? goNextAfterCorrect : closePopup}
+        />
+      )}
+
+      {isDone && (
+        <div className="answer-popup">
+          <div className="popup-card correct">
+            <span className="popup-icon">🎉</span>
+            <p className="popup-word">Hyvä!</p>
+            <p className="popup-message success">Olet suorittanut tämän osan.</p>
+            <p className="popup-ipa">Great job – keep it up!</p>
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+                justifyContent: "center",
+                marginTop: "8px",
+              }}
+            >
+              <button
+                className="popup-button popup-button-secondary"
+                onClick={() => {
+                  setIsDone(false);
+                  setCurrentQuestion(0);
+                  setAnswersByPart((prev) => ({
+                    ...prev,
+                    [currentPart]: Array(questions.length).fill(null),
+                  }));
+                  setHasCelebrated(false);
+                }}
+              >
+                Yritä uudelleen
+              </button>
+
+              <button
+                className="popup-button"
+                onClick={() => {
+                  const nextIndex = PARTS.indexOf(currentPart) + 1;
+                  if (nextIndex < PARTS.length) {
+                    handlePartChange(PARTS[nextIndex]);
+                  }
+                }}
+              >
+                Seuraava osa →
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

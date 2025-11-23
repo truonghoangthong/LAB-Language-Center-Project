@@ -164,3 +164,16 @@
 .listen-click .error {
   color: #f44336;
 }
+
+.questions .question.active {
+ 
+outline: 4px solid #16a2ba;     
+  outline-offset: 2px;
+}
+
+.questions .question.wrong.active {
+  outline: 4px solid #16a2ba;     
+  outline-offset: 2px;
+}
+
+
