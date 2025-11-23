@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import Title from "../../components/listening-title/title";
+import Title from "../../components/listening-title/listening-title";
 import AnswerPopup from "../../components/AnswerPopup/AnswerPopup";
 import confetti from "canvas-confetti";
 import "./listen-click.css";
