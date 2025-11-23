@@ -26,7 +26,7 @@ const Title = ({ type, lesson, instruction}) => {
       case "dialog":
         return (
           <>
-            Listen and <span className="title-highlight-dialog">Dialogues</span>
+            Listen and <span className="title-highlight-dialog">Dialog</span>
           </>
         );
       default:
