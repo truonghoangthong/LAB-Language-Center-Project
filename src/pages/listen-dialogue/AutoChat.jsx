@@ -27,7 +27,7 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
     const fetchData = async () => {
       try {
         const res = await fetch(
-          "http://localhost:3000/listening/finnish_for_work/dialogues/kahvitauolla_1/part1",
+          "http://localhost:3000/listening/finnish_for_work/dialogues/kahvitauolla_2/part1",
           { signal: controller.signal }
         );
         if (!res.ok) throw new Error("HTTP: " + res.status);

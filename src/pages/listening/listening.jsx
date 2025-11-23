@@ -54,7 +54,7 @@ const Listening = () => {
 
   const handleStart = (topicName, boxType, lessonName) => {
     const path = `/listening/${selectedLevel}/${boxType}/${topicName.toLowerCase().replace(/\s+/g, '')}`;
-    navigate(path);
+    navigate(path, { state: { type: boxType, lessonName } });
   };
 
   const getDisplayName = (label) => {

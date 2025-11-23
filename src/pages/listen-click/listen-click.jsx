@@ -1,11 +1,17 @@
-import { useState, useEffect, useRef } from 'react'; 
-import { useParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import Title from '../../components/listening-title/listening-title';
 import './listen-click.css';
 
 const ListenAndClick = () => {
-  const { level, topic } = useParams(); 
-  const paramType = 'click'; 
+  const { level, type: paramType, name: paramName } = useParams();
+  const location = useLocation();
+  const incomingState = location.state || {};
+
+  const [lessonInfo, setLessonInfo] = useState({
+    type: incomingState.type || '',
+    lessonName: incomingState.lessonName || '',
+  });
 
   const [questionsByPart, setQuestionsByPart] = useState({});
   const [imagesByPart, setImagesByPart] = useState({});
@@ -18,12 +24,47 @@ const ListenAndClick = () => {
 
   const parts = ['part1', 'part2', 'part3'];
 
+  const name =
+    paramName ||
+    (() => {
+      const segments = window.location.pathname.split('/').filter(Boolean);
+      return segments.at(-1);
+    })();
+
   const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
 
   useEffect(() => {
+    if (lessonInfo.type && lessonInfo.lessonName) return;
+
+    if (!level || !paramType) return;
+
+    const fetchLessonInfo = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/listening/${level}/${paramType}`);
+        const data = await res.json();
+
+        const matchedLesson = data.result.find(
+          (lesson) => lesson.lessonName.toLowerCase() === name.toLowerCase()
+        );
+
+        if (matchedLesson) {
+          setLessonInfo({ type: matchedLesson.type, lessonName: matchedLesson.lessonName });
+        } else {
+          setLessonInfo({ type: paramType, lessonName: name });
+        }
+      } catch (err) {
+        console.error('Error fetching lesson info:', err);
+        setLessonInfo({ type: paramType, lessonName: name });
+      }
+    };
+
+    fetchLessonInfo();
+  }, [level, paramType, name, lessonInfo]);
+
+  useEffect(() => {
     const fetchAllParts = async () => {
-      if (!level || !topic) {
-        setError('Invalid URL: missing level or topic.');
+      if (!level || !paramType || !name) {
+        setError('Invalid URL: missing level, type, or name.');
         setLoading(false);
         return;
       }
@@ -36,7 +77,7 @@ const ListenAndClick = () => {
 
       try {
         for (const part of parts) {
-          const url = `http://localhost:3000/listening/${level}/${paramType}/${topic}/${part}`;
+          const url = `http://localhost:3000/listening/${level}/${paramType}/${name}/${part}`;
           const res = await fetch(url);
           if (!res.ok) continue;
 
@@ -65,7 +106,7 @@ const ListenAndClick = () => {
     };
 
     fetchAllParts();
-  }, [level, paramType, topic]);
+  }, [level, paramType, name]);
 
   const questions = questionsByPart[currentPart] || [];
   const images = imagesByPart[currentPart] || [];
@@ -73,20 +114,23 @@ const ListenAndClick = () => {
 
   const playAudio = (index) => {
     if (!questions[index] || !audioRef.current) return;
-    audioRef.current.src = questions[index].audioLink;
-    audioRef.current.play().catch(() => {});
+    const { audioLink } = questions[index];
+    audioRef.current.src = audioLink;
+    audioRef.current.play().catch((err) => console.warn('Audio error:', err));
   };
 
   const handleAnswer = (clickedScript) => {
+    if (!questions[currentQuestion]) return;
+
     const correctScript = questions[currentQuestion].script;
     const isCorrect = clickedScript === correctScript;
 
-    const updated = [...answers];
-    updated[currentQuestion] = isCorrect;
+    const updatedAnswers = [...answers];
+    updatedAnswers[currentQuestion] = isCorrect;
 
     setAnswersByPart((prev) => ({
       ...prev,
-      [currentPart]: updated,
+      [currentPart]: updatedAnswers,
     }));
 
     if (currentQuestion < questions.length - 1) {
@@ -97,32 +141,43 @@ const ListenAndClick = () => {
     }
   };
 
-  const titleText = topic;
-  const instructionText = 'Klikkaa oikeaa kuvaa';
+  const handlePartChange = (part) => {
+    setCurrentPart(part);
+    setCurrentQuestion(0);
+  };
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
 
+  const hasData = questions.length > 0;
+
+  const titleText = lessonInfo.lessonName;
+
+  const instructionText =
+    lessonInfo.type === 'click'
+      ? 'Klikkaa oikeaa kuvaa'
+      : lessonInfo.type === 'drag'
+      ? 'Vedä sana oikeaan paikkaan'
+      : 'Kuuntele keskustelu ja valitse vastaus';
+
   return (
     <div className="listen-click">
-      <Title type={paramType} lesson={titleText} instruction={instructionText} />
+      <Title type={lessonInfo.type} lesson={titleText} instruction={instructionText} />
 
       <div className="parts-nav">
         {parts.map((part) => (
           <button
             key={part}
             className={currentPart === part ? 'active' : ''}
-            onClick={() => {
-              setCurrentPart(part);
-              setCurrentQuestion(0);
-            }}
+            onClick={() => handlePartChange(part)}
+            disabled={!questionsByPart[part]}
           >
             {part}
           </button>
         ))}
       </div>
 
-      {questions.length > 0 ? (
+      {hasData ? (
         <div className="part active">
           <div className="part-label">{currentPart}</div>
 
@@ -145,6 +200,15 @@ const ListenAndClick = () => {
                 key={idx}
                 src={img.imageLink}
                 alt={img.script}
+                className={
+                  answers[currentQuestion] == null
+                    ? ''
+                    : img.script === questions[currentQuestion].script
+                    ? answers[currentQuestion]
+                      ? 'correct'
+                      : 'wrong'
+                    : ''
+                }
                 onClick={() => handleAnswer(img.script)}
               />
             ))}
