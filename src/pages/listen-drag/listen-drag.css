@@ -1,0 +1,37 @@
+/* Giống layout listen-click: căn giữa, padding gọn */
+.listen-drag-page {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* KHUNG TRẮNG QUANH GAME – clone style từ .listen-click .part */
+.listen-drag-card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  max-width: 900px;          /* muốn rộng như click thì tăng lên 1000–1100 */
+  position: relative;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  display: flex;
+  justify-content: center;
+}
+
+/* Đảm bảo khung game căn giữa trong card */
+.listen-drag-card .game-embed__frame {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Nếu muốn thu nhỏ một chút khoảng trắng trên/dưới title: */
+.listen-drag-page h1,
+.listen-drag-page h2,
+.listen-drag-page p {
+  margin-top: 0;
+}

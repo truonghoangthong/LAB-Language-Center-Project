@@ -5,7 +5,6 @@ import GameEmbed from "../../components/gamelinks/GameEmbed";
 import "../../components/gamelinks/game-embed.css";
 import "./listen-drag.css";
 
-
 const ListenAndDrag = () => {
   const { level, topic } = useParams();
 
@@ -13,6 +12,8 @@ const ListenAndDrag = () => {
 
   return (
     <div className="listen-drag-page">
+
+      {/* --- PHẦN TIÊU ĐỀ ĐỨNG RIÊNG --- */}
       <Title
         type="drag"
         lesson={lessonLabel}

@@ -6,10 +6,13 @@ const GameEmbed = ({
   src,                    // dùng khi không có projectId
   title = "Scratch Game",
   showTitle = false,
-  className = ""
+  className = "",
+  width = 700,            // 👉 size bên ngoài: to hơn tí
+  height = 400,           // 👉 chỉnh ở đây nếu muốn
 }) => {
+  // Dùng TurboWarp
   const iframeSrc = projectId
-    ? `https://scratch.mit.edu/projects/${projectId}/embed`
+    ? `https://turbowarp.org/${projectId}/embed`
     : src;
 
   if (!iframeSrc) {
@@ -20,14 +23,17 @@ const GameEmbed = ({
   return (
     <div className={`lesson-card ${className}`}>
       {showTitle && <div className="game-embed__header">{title}</div>}
+
       <div className="game-embed__frame">
         <iframe
           src={iframeSrc}
           title={title}
+          width={width}           // 🔥 QUAN TRỌNG
+          height={height}         // 🔥 QUAN TRỌNG
+          frameBorder="0"
           allow="fullscreen"
           allowFullScreen
-          frameBorder="0"
-          scrolling="no"
+          style={{ maxWidth: "100%" }} // để responsive
         />
       </div>
     </div>
