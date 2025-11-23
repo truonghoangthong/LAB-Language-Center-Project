@@ -164,3 +164,17 @@
 .listen-click .error {
   color: #f44336;
 }
+/* Tab câu hiện tại (chưa đúng) */
+.questions .question.active {
+ 
+outline: 4px solid #16a2ba;     /* đường viền xanh để biết đang tới câu này */
+  outline-offset: 2px;
+}
+
+/* Nếu câu hiện tại đang ở trạng thái sai, vẫn cho dấu hiệu đang-active rõ ràng */
+.questions .question.wrong.active {
+  outline: 4px solid #16a2ba;     /* đường viền xanh để biết đang tới câu này */
+  outline-offset: 2px;
+}
+
+
