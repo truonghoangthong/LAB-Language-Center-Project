@@ -26,17 +26,17 @@ const Listening = () => {
 
   const fetchTopics = async (level, type) => {
     const key = `${level}_${type}`;
-    setLoadingTopics(prev => ({ ...prev, [key]: true }));
+    setLoadingTopics((prev) => ({ ...prev, [key]: true }));
     try {
       const res = await fetch(`http://localhost:3000/listening/${level}/${type}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const data = await res.json();
-      setTopics(prev => ({ ...prev, [key]: data.result }));
+      setTopics((prev) => ({ ...prev, [key]: data.result }));
     } catch (err) {
       console.error('Failed to fetch topics:', err);
-      setTopics(prev => ({ ...prev, [key]: [] }));
+      setTopics((prev) => ({ ...prev, [key]: [] }));
     } finally {
-      setLoadingTopics(prev => ({ ...prev, [key]: false }));
+      setLoadingTopics((prev) => ({ ...prev, [key]: false }));
     }
   };
 
@@ -52,9 +52,10 @@ const Listening = () => {
     setActiveBox(null);
   };
 
-  const handleStart = (topicName, boxType, lessonName) => {
-    const path = `/listening/${selectedLevel}/${boxType}/${topicName.toLowerCase().replace(/\s+/g, '')}`;
-    navigate(path, { state: { type: boxType, lessonName } });
+  const handleStart = (topicName, boxType) => {
+    const normalizedTopicName = topicName.toLowerCase().replace(/\s+/g, '');
+    const path = `/listening/${selectedLevel}/${boxType}/${normalizedTopicName}`;
+    navigate(path);
   };
 
   const getDisplayName = (label) => {
@@ -144,7 +145,7 @@ const Listening = () => {
                           className="start-btn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleStart(topic.lessonName, box.type, topic.lessonName);
+                            handleStart(topic.lessonName, box.type);
                           }}
                         >
                           Start

@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Title from '../../components/listening-title/listening-title';
 import './listen-click.css';
 
 const ListenAndClick = () => {
-  const { level, type: paramType, name: paramName } = useParams();
-  const location = useLocation();
-  const incomingState = location.state || {};
+  const { level, topic } = useParams();
 
   const [lessonInfo, setLessonInfo] = useState({
-    type: incomingState.type || '',
-    lessonName: incomingState.lessonName || '',
+    type: 'click',  
+    lessonName: topic || '',
   });
 
   const [questionsByPart, setQuestionsByPart] = useState({});
@@ -24,47 +22,12 @@ const ListenAndClick = () => {
 
   const parts = ['part1', 'part2', 'part3'];
 
-  const name =
-    paramName ||
-    (() => {
-      const segments = window.location.pathname.split('/').filter(Boolean);
-      return segments.at(-1);
-    })();
-
   const shuffle = (array) => [...array].sort(() => Math.random() - 0.5);
 
   useEffect(() => {
-    if (lessonInfo.type && lessonInfo.lessonName) return;
-
-    if (!level || !paramType) return;
-
-    const fetchLessonInfo = async () => {
-      try {
-        const res = await fetch(`http://localhost:3000/listening/${level}/${paramType}`);
-        const data = await res.json();
-
-        const matchedLesson = data.result.find(
-          (lesson) => lesson.lessonName.toLowerCase() === name.toLowerCase()
-        );
-
-        if (matchedLesson) {
-          setLessonInfo({ type: matchedLesson.type, lessonName: matchedLesson.lessonName });
-        } else {
-          setLessonInfo({ type: paramType, lessonName: name });
-        }
-      } catch (err) {
-        console.error('Error fetching lesson info:', err);
-        setLessonInfo({ type: paramType, lessonName: name });
-      }
-    };
-
-    fetchLessonInfo();
-  }, [level, paramType, name, lessonInfo]);
-
-  useEffect(() => {
     const fetchAllParts = async () => {
-      if (!level || !paramType || !name) {
-        setError('Invalid URL: missing level, type, or name.');
+      if (!level || !topic) {
+        setError('Invalid URL: missing level or topic.');
         setLoading(false);
         return;
       }
@@ -77,7 +40,7 @@ const ListenAndClick = () => {
 
       try {
         for (const part of parts) {
-          const url = `http://localhost:3000/listening/${level}/${paramType}/${name}/${part}`;
+          const url = `http://localhost:3000/listening/${level}/click/${topic}/${part}`;
           const res = await fetch(url);
           if (!res.ok) continue;
 
@@ -106,7 +69,7 @@ const ListenAndClick = () => {
     };
 
     fetchAllParts();
-  }, [level, paramType, name]);
+  }, [level, topic]);
 
   const questions = questionsByPart[currentPart] || [];
   const images = imagesByPart[currentPart] || [];
@@ -151,8 +114,8 @@ const ListenAndClick = () => {
 
   const hasData = questions.length > 0;
 
-  const titleText = lessonInfo.lessonName;
 
+  const titleText = lessonInfo.lessonName;
   const instructionText =
     lessonInfo.type === 'click'
       ? 'Klikkaa oikeaa kuvaa'
