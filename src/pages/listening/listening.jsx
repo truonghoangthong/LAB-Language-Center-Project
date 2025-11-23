@@ -3,6 +3,20 @@ import { Icon } from '@iconify/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const boxes = [
+  { icon: 'fluent:speaker-2-24-filled', title: 'Listen and Click', type: 'click' },
+  { icon: 'fluent:hand-left-28-filled', title: 'Listen and Drag', type: 'drag' },
+  { icon: 'fluent:chat-bubbles-question-24-filled', title: 'Listen and Dialog', type: 'dialogues' },
+];
+
+const levels = [
+  'finnish_1',
+  'finnish_2',
+  'finnish_3',
+  'finnish_4',
+  'finnish_for_work',
+];
+
 const Listening = () => {
   const [activeBox, setActiveBox] = useState(null);
   const [selectedLevel, setSelectedLevel] = useState('finnish_1');
@@ -10,33 +24,18 @@ const Listening = () => {
   const [loadingTopics, setLoadingTopics] = useState({});
   const navigate = useNavigate();
 
-  const boxes = [
-    { icon: 'fluent:speaker-2-24-filled', title: 'Listen and Click', type: 'click' },
-    { icon: 'fluent:hand-left-28-filled', title: 'Listen and Drag', type: 'drag' },
-    { icon: 'fluent:chat-bubbles-question-24-filled', title: 'Listen and Dialog', type: 'dialogues' },
-  ];
-
-  const levels = [
-    'finnish_1',
-    'finnish_2',
-    'finnish_3',
-    'finnish_4',
-    'finnish_for_work',
-  ];
-
   const fetchTopics = async (level, type) => {
     const key = `${level}_${type}`;
-    setLoadingTopics((prev) => ({ ...prev, [key]: true }));
+    setLoadingTopics(prev => ({ ...prev, [key]: true }));
     try {
       const res = await fetch(`http://localhost:3000/listening/${level}/${type}`);
-      if (!res.ok) throw new Error('Network response was not ok');
       const data = await res.json();
-      setTopics((prev) => ({ ...prev, [key]: data.result }));
+      setTopics(prev => ({ ...prev, [key]: data.result || [] }));
     } catch (err) {
       console.error('Failed to fetch topics:', err);
-      setTopics((prev) => ({ ...prev, [key]: [] }));
+      setTopics(prev => ({ ...prev, [key]: [] }));
     } finally {
-      setLoadingTopics((prev) => ({ ...prev, [key]: false }));
+      setLoadingTopics(prev => ({ ...prev, [key]: false }));
     }
   };
 
@@ -53,25 +52,11 @@ const Listening = () => {
   };
 
   const handleStart = (topicName, boxType) => {
-    const normalizedTopicName = topicName.toLowerCase().replace(/\s+/g, '');
-    const path = `/listening/${selectedLevel}/${boxType}/${normalizedTopicName}`;
-    navigate(path);
+    const normalizedTopicName = topicName.toLowerCase().replace(/\s+/g, '_');
+    navigate(`/listening/${selectedLevel}/${boxType}/${normalizedTopicName}`);
   };
 
-  const getDisplayName = (label) => {
-    if (label === 'finnish_for_work') return 'Finnish for Work';
-    return label.replace('finnish_', 'Finnish ').toUpperCase();
-  };
-
-  const getCurrentTopics = (boxType) => {
-    const key = `${selectedLevel}_${boxType}`;
-    return topics[key];
-  };
-
-  const isLoading = (boxType) => {
-    const key = `${selectedLevel}_${boxType}`;
-    return loadingTopics[key];
-  };
+const getDisplayName = (label) => label.replace(/_/g, ' ').toUpperCase();
 
   return (
     <div className="listening">
@@ -103,8 +88,9 @@ const Listening = () => {
 
       <div className="boxes-container">
         {boxes.map((box, index) => {
-          const currentTopics = getCurrentTopics(box.type);
-          const loading = isLoading(box.type);
+          const key = `${selectedLevel}_${box.type}`;
+          const currentTopics = topics[key] || [];
+          const loading = loadingTopics[key];
 
           return (
             <div
@@ -135,7 +121,7 @@ const Listening = () => {
 
               <div className={`topic-wrapper ${activeBox === index ? 'show' : ''}`}>
                 <div className="topic-list">
-                  {currentTopics &&
+                  {currentTopics.length > 0 ? (
                     currentTopics.map((topic, i) => (
                       <div key={i} className="topic-item">
                         <span className="topic-label">
@@ -151,9 +137,9 @@ const Listening = () => {
                           Start
                         </button>
                       </div>
-                    ))}
-                  {currentTopics && currentTopics.length === 0 && !loading && (
-                    <div className="no-topic-box">There is no topic</div>
+                    ))
+                  ) : (
+                    !loading && <div className="no-topic-box">There is no topic</div>
                   )}
                 </div>
               </div>
