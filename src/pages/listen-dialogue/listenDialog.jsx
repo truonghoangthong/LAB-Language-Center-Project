@@ -29,8 +29,10 @@ export default function ListenDialog() {
         instruction="Listen to the dialogue and read along. You can replay the dialogue and toggle the transcript visibility."
       />
       <div className="dialog-chat-area">
-        <AutoChat ref={autoChatRef} showTranscript={showTranscript} />
-        <div className="dialog-bottom-controls">
+        <div className="chat-display-container">
+          <AutoChat ref={autoChatRef} showTranscript={showTranscript} />
+        </div>
+        <div className="dialog-button-container">
           <button className="dialog-btn" onClick={handleStart}>
             Start / Replay
           </button>
