@@ -14,10 +14,8 @@ listeningRoutes.use(httpLogger);
 listeningRoutes.get("/:level/:type", async (req: Request, res: Response) => {
     const { level, type } = req.params as { level: string; type: string };
     if (!level || !type) {
-        return res
-            .status(400)
-            .json({ error: "Missing level or type parameter" });
         logger.error("Missing parameters", { level, type });
+        return res.status(400).json({ error: "Missing level or type parameter" });
     } else {
         logger.info("Fetching lessons");
         const queryLesson = query(
@@ -79,10 +77,11 @@ listeningRoutes.get("/:level/:type/:name/:part", async (req: Request, res: Respo
         const data = querySnapshot.docs[0].data();
         const selectedPart = data?.[part];
         if (!selectedPart) {
+            logger.error("Part not found", { part, lesson: name });
             return res
                 .status(404)
                 .json({ error: `${part} not found in lesson ${name}` });
-            logger.error("Part not found", { part, lesson: name });
+
         }
         try {
             if (querySnapshot.empty) {
@@ -106,8 +105,7 @@ listeningRoutes.get("/:level/:type/:name/:part", async (req: Request, res: Respo
                 return res.status(200).json({ result });
             }
         } catch (error) {
-            const message =
-                error instanceof Error ? error.message : String(error);
+            const message = error instanceof Error ? error.message : String(error);
             logger.error("Failed to fetch lessons", { error: message });
             return res.status(500).json({ error: "Error retrieving lessons" });
         }
