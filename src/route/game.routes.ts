@@ -74,6 +74,7 @@ gameRoutes.get("/:type", async (req: Request, res: Response): Promise<any> => {
                 type: data.type?.toString().trim() || cleanType,
                 lessonId: data.lessonId || "",
                 character: data.character || "",
+                imageLink: data.imageLink || "",
                 createAt, // Tên field đúng: createAt
             };
         });
