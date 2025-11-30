@@ -73,6 +73,7 @@ gameRoutes.get("/:type", async (req: Request, res: Response): Promise<any> => {
                 module: data.module || "game",
                 type: data.type?.toString().trim() || cleanType,
                 lessonId: data.lessonId || "",
+                character: data.character || "",
                 createAt, // Tên field đúng: createAt
             };
         });
