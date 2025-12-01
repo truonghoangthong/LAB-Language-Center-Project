@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
 import "./answer-popup.css";
 
-/**
- * Dùng chung cho Module 1, 2... Backward-compatible với phiên bản cũ.
- */
+/* Dùng chung cho Module 1, 2*/
 const AnswerPopup = ({
   isCorrect,
   image,
@@ -11,7 +9,7 @@ const AnswerPopup = ({
   ipa,
   onClose,
 
-  // --- optional / mở rộng ---
+  //optional
   autoCloseWrongMs = 1200,
   nextLabel = "Jatka →",
   onReplay,                 // nếu muốn hiện nút Replay trong popup đúng
@@ -19,7 +17,7 @@ const AnswerPopup = ({
   tabs = [],                // ["idle"|"active"|"correct"|"wrong"]
   onPracticeAgain,          // hiện nút luyện lại khi hoàn tất
 }) => {
-  // Auto close khi sai (giữ như module 1)
+  // Auto close khi sai
   useEffect(() => {
     if (!isCorrect && autoCloseWrongMs > 0) {
       const timeout = setTimeout(() => {
@@ -116,7 +114,6 @@ const AnswerPopup = ({
           </p>
         )}
 
-        {/* dãy tab trạng thái (tuỳ chọn) */}
         {renderTabs()}
       </div>
     </div>

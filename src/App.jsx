@@ -25,20 +25,14 @@ function App() {
                             path="/games/sanapyramidi"
                             element={<Sanapyramidi />}
                         />
-
-                        {/* Drag game riêng */}
                         <Route
                             path="/listening/:level/drag/:topic"
                             element={<ListenAndDrag />}
                         />
-
-                        {/* Dialogue */}
                         <Route
                             path="/listening/:level/dialogues/:topic"
                             element={<ListenDialog />}
                         />
-
-                        {/* Route chung cho click/drag kiểu mới (type) */}
                         <Route
                             path="/listening/:level/:type/:topic"
                             element={<ListenAndClick />}

@@ -12,8 +12,6 @@ const ListenAndDrag = () => {
 
   return (
     <div className="listen-drag-page">
-
-      {/* --- PHẦN TIÊU ĐỀ ĐỨNG RIÊNG --- */}
       <Title
         type="drag"
         lesson={lessonLabel}
