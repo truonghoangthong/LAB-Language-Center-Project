@@ -7,6 +7,7 @@ import ListenAndClick from "./pages/listen-click/listen-click";
 import ListenDialog from "./pages/listen-dialogue/listenDialog";
 import ListenAndDrag from "./pages/listen-drag/listen-drag";
 import Sanapyramidi from "./pages/games/Sanapyramidi"; 
+import Game from "./pages/games/game";
 
 function App() {
     return (
@@ -17,7 +18,7 @@ function App() {
                     <Routes>
                         <Route path="/test" element={<ListenDialog />} />
                         <Route path="/" element={<Home />} />
-                        <Route path="/game" element={<></>} />
+                        <Route path="/game" element={<Game />} />
                         <Route path="/listening" element={<Listening />} />
 
                         <Route
