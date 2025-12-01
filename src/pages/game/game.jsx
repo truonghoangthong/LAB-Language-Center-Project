@@ -82,9 +82,6 @@ const Game = () => {
       {selectedLesson && activeSection === "arvaa" && (
         <TutorBoard lesson={selectedLesson} characterImage={selectedLesson.imageLink} />
       )}
-      {selectedLesson && activeSection === "sanapyramidi" && (
-        <Sanapyramidi />
-      )}
     </div>
   );
 };
