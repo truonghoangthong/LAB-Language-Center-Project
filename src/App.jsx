@@ -6,6 +6,7 @@ import Listening from "./pages/listening/listening";
 import ListenAndClick from "./pages/listen-click/listen-click";
 import ListenDialog from "./pages/listen-dialogue/listenDialog";
 import ListenAndDrag from "./pages/listen-drag/listen-drag";
+import Game from "./pages/game/game";
 
 import Sanapyramidi from "./games/Sanapyramidi"; // anh Bi thêm
 
@@ -18,9 +19,8 @@ function App() {
                     <Routes>
                         <Route path="/test" element={<ListenDialog />} />
                         <Route path="/" element={<Home />} />
-                        <Route path="/game" element={<></>} />
+                        <Route path="/game" element={<Game />} />
                         <Route path="/listening" element={<Listening />} />
-
                         <Route
                             path="/games/sanapyramidi"
                             element={<Sanapyramidi />}
