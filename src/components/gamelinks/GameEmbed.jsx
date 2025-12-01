@@ -2,15 +2,15 @@ import React from "react";
 import "./game-embed.css";
 
 const GameEmbed = ({
-  projectId,              // ví dụ: "1235043346"
-  src,                    // dùng khi không có projectId
+  projectId,               // Scratch project ID (used with TurboWarp)
+  src,                    // Fallback URL when projectId is not provided
   title = "Scratch Game",
   showTitle = false,
   className = "",
-  width = 700,            // 👉 size bên ngoài: to hơn tí
-  height = 400,           // 👉 chỉnh ở đây nếu muốn
+  width = 700,            // Default iframe width
+  height = 400,           // Default iframe height
 }) => {
-  // Dùng TurboWarp
+  // Use TurboWarp embed if projectId exists
   const iframeSrc = projectId
     ? `https://turbowarp.org/${projectId}/embed`
     : src;
@@ -28,12 +28,12 @@ const GameEmbed = ({
         <iframe
           src={iframeSrc}
           title={title}
-          width={width}           // 🔥 QUAN TRỌNG
-          height={height}         // 🔥 QUAN TRỌNG
+          width={width}           // Required (TurboWarp uses fixed width/height)
+          height={height}         // Required (TurboWarp uses fixed width/height)
           frameBorder="0"
           allow="fullscreen"
           allowFullScreen
-          style={{ maxWidth: "100%" }} // để responsive
+          style={{ maxWidth: "100%" }} // Make iframe responsive on smaller screens
         />
       </div>
     </div>

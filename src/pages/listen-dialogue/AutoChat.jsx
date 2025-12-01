@@ -1,25 +1,45 @@
-import { useEffect, useState, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
+import { 
+  useEffect, 
+  useState, 
+  useRef, 
+  useCallback, 
+  forwardRef, 
+  useImperativeHandle 
+} from "react";
 import ChatBubble from "./ChatBubble";
 import "./listenDialog.css";
 
+/**
+ * AutoChat component
+ * ------------------
+ * Automatically plays a dialogue line-by-line.
+ * Each message:
+ *    - Appears in the chat UI
+ *    - Plays audio
+ *    - Waits until audio finishes before moving to the next message
+ * 
+ * Parent can trigger the chat using ref.handleStart().
+ */
 const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
-  const [messages, setMessages] = useState([]);
-  const [displayMsgs, setDisplayMsgs] = useState([]);
-  const [index, setIndex] = useState(0);
-  const [isTyping, setIsTyping] = useState(false);
-  const [typingSide, setTypingSide] = useState("left");
+  const [messages, setMessages] = useState([]);      // Full script from API
+  const [displayMsgs, setDisplayMsgs] = useState([]); // Messages currently visible
+  const [index, setIndex] = useState(0);             // Current message index
+  const [isTyping, setIsTyping] = useState(false);   // Typing animation state
+  const [typingSide, setTypingSide] = useState("left");  
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [cooldown, setCooldown] = useState(false);
-  const [started, setStarted] = useState(false);
+  const [loading, setLoading] = useState(true);      // Waiting for API
+  const [cooldown, setCooldown] = useState(false);   // Prevent rapid re-starts
+  const [started, setStarted] = useState(false);     // Whether chat has been started
 
-  const chatRef = useRef(null);
-  const audioRef = useRef(new Audio());
+  const chatRef = useRef(null);                      // Chat container (for auto-scroll)
+  const audioRef = useRef(new Audio());              // Global audio player
 
+  /** Expose handleStart() to parent component */
   useImperativeHandle(ref, () => ({
     handleStart,
   }));
 
+  /** Cleanup audio when component unmounts */
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -29,6 +49,13 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
     };
   }, []);
 
+  /**
+   * Fetch dialogue from API on mount
+   * --------------------------------
+   * After fetching:
+   *    - Sort the script keys properly
+   *    - Convert into usable message objects
+   */
   useEffect(() => {
     const controller = new AbortController();
 
@@ -43,14 +70,16 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
         const data = await res.json();
         const part = data.result.part1;
 
+        // Convert key-value pairs to sorted message list
         const ordered = Object.entries(part)
           .sort(([a], [b]) => {
+            // Keys look like: line_1_1 → [ 'line', '1', '1' ]
             const [a1, a2] = a.split("_").slice(1).map(Number);
             const [b1, b2] = b.split("_").slice(1).map(Number);
             return a2 - b2 || a1 - b1;
           })
           .map(([k, v]) => ({
-            speaker: k.split("_")[1],
+            speaker: k.split("_")[1], // "1" or "2"
             text: v.script,
             avatar: v.imageLink,
             audio: v.audioLink,
@@ -68,9 +97,16 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
     return () => controller.abort();
   }, []);
 
+  /**
+   * Play audio for a message
+   * --------------------------------
+   * - If audio exists → play it, then run onFinish() after it ends
+   * - If audio does NOT exist → delay a bit then continue
+   */
   const playAudio = useCallback((msg, onFinish) => {
     const audio = audioRef.current;
 
+    // No audio → still simulate timing
     if (!msg.audio) {
       setAudioPlaying(false);
       setTimeout(onFinish, 800);
@@ -78,6 +114,7 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
     }
 
     audio.src = msg.audio;
+
     audio.onended = () => {
       setAudioPlaying(false);
       audio.onended = null;
@@ -88,23 +125,26 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
       .play()
       .then(() => setAudioPlaying(true))
       .catch(() => {
+        // In case autoplay is blocked or audio error
         setAudioPlaying(false);
         onFinish();
       });
   }, []);
 
-  // Bỏ effect reset displayMsgs và index khi toggle showTranscript
-  // useEffect(() => {
-  //   setDisplayMsgs([]);
-  //   setIndex(0);
-  // }, [showTranscript]);
-
+  /**
+   * Main auto-chat engine
+   * --------------------------------
+   * Whenever index increases:
+   *    - Push next message to the UI
+   *    - Play audio
+   *    - After audio ends → index++ triggers next cycle
+   */
   useEffect(() => {
     if (loading || !started || index >= messages.length) return;
 
     const msg = messages[index];
 
-    // Ngừng phụ thuộc vào showTranscript để chạy chat
+    // Only add if not yet displayed
     if (displayMsgs.length === index) {
       setDisplayMsgs(prev => [...prev, msg]);
       playAudio(msg, () => setIndex(i => i + 1));
@@ -112,6 +152,9 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
 
   }, [index, messages, loading, displayMsgs.length, playAudio, started]);
 
+  /**
+   * Auto scroll to bottom when messages change
+   */
   useEffect(() => {
     if (chatRef.current)
       chatRef.current.scrollTo({
@@ -120,6 +163,13 @@ const AutoChat = forwardRef(function AutoChat({ showTranscript }, ref) {
       });
   }, [displayMsgs, isTyping]);
 
+  /**
+   * Start the chat manually (called from parent using ref)
+   * --------------------------------
+   * Resets:
+   *    - display messages
+   *    - index
+   */
   function handleStart() {
     if (cooldown || loading) return;
 

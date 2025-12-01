@@ -81,6 +81,7 @@
   border-radius: 14px;
   font-size: 15px;
   line-height: 1.4;
+  font-family: var(--font-body);
 }
 
 .typing-loader {
@@ -112,11 +113,14 @@
   font-size: 15px;
   cursor: pointer;
   transition: background 0.3s;
+  font-family: var(--font-body);
 }
 
 .dialog-btn:hover:enabled {
-  background: #0077ee;
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
 }
+
 
 .dialog-btn:disabled {
   background: #cccccc;

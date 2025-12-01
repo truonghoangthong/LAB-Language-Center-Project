@@ -9,7 +9,7 @@ export default function ListenDialog() {
 
   const [lessonInfo] = useState({
     type: "dialog",
-    lessonName: topic || "",
+    lessonName: topic,
   });
 
   const [showTranscript, setShowTranscript] = useState(true);

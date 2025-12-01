@@ -6,8 +6,7 @@ import Listening from "./pages/listening/listening";
 import ListenAndClick from "./pages/listen-click/listen-click";
 import ListenDialog from "./pages/listen-dialogue/listenDialog";
 import ListenAndDrag from "./pages/listen-drag/listen-drag";
-
-import Sanapyramidi from "./games/Sanapyramidi"; // anh Bi thêm
+import Sanapyramidi from "./pages/games/Sanapyramidi"; 
 
 function App() {
     return (
