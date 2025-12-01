@@ -6,8 +6,9 @@ import Listening from "./pages/listening/listening";
 import ListenAndClick from "./pages/listen-click/listen-click";
 import ListenDialog from "./pages/listen-dialogue/listenDialog";
 import ListenAndDrag from "./pages/listen-drag/listen-drag";
-import Sanapyramidi from "./pages/games/Sanapyramidi"; 
-import Game from "./pages/games/game";
+import Game from "./pages/game/game";
+
+import Sanapyramidi from "./pages/game/Sanapyramidi"; // anh Bi thêm
 
 function App() {
     return (
@@ -20,7 +21,6 @@ function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/game" element={<Game />} />
                         <Route path="/listening" element={<Listening />} />
-
                         <Route
                             path="/games/sanapyramidi"
                             element={<Sanapyramidi />}

@@ -1,0 +1,80 @@
+/* ========== GAME CONTAINER ========== */
+.game-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+}
+/* ========== GAME ICON SECTION ========== */
+.game-icon {
+    display: flex;
+    gap: 150px;
+    margin-bottom: 30px;
+}
+
+/* ========== INDIVIDUAL GAME CARDS ========== */
+.tutor-game,
+.sanapyramidi-game {
+    flex: 1;
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 3px solid transparent;
+    opacity: 0.5;
+}
+
+.tutor-game:hover,
+.sanapyramidi-game:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tutor-game.active,
+.sanapyramidi-game.active {
+    border: 3px solid #333;
+    opacity: 1;
+}
+
+/* ========== ICONS ========== */
+.tutor-icon,
+.sanapyramidi-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+/* ========== GAME TITLES ========== */
+.tutor-game h1,
+.sanapyramidi-game h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #999;
+    transition: color 0.3s;
+}
+
+.tutor-game.active h1,
+.sanapyramidi-game.active h1 {
+    color: #333;
+}
+
+/* ========== DESCRIPTION TEXT ========== */
+.text-introduction{
+    text-align: center;
+    font-size: 18px;
+    font-weight: normal;
+    color: #666;
+    margin-top: 20px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+}

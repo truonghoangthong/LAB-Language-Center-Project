@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Icon } from "@iconify/react";
 import pyramidiLogo from "../../assets/pyramid.svg";
 import PyramidiUnactive from "../../assets/pyramid-unactive.svg";
-import Sanapyramidi from "./Sanapyramidi";
+import Sanapyramidi from "../game/Sanapyramidi";
 import "./game.css";
 
-const Game = () => {
+const Games = () => {
   const [activeSection, setActiveSection] = useState("arvaa"); // Track active section
 
   return (
@@ -39,4 +39,4 @@ const Game = () => {
   );
 };
 
-export default Game;
+export default Games;
