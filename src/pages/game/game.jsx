@@ -1,62 +1,87 @@
 import { useState, useEffect } from "react"; 
-import "./game.css";
-import React from 'react';
-import tutorIcon from "../../assets/tutor.png";
-import sanapyramidi from "../../assets/sanapyramidi.png";
+import { Icon } from "@iconify/react";
+import pyramidiLogo from "../../assets/pyramid.svg";
+import PyramidiUnactive from "../../assets/pyramid-unactive.svg";
 import axios from 'axios';
 import TutorItem from "./TutorItem/TutorItem";
-import SanapyramidiItem from "./SanapyramidiItem/SanapyramidiItem";
 import TutorBoard from "./TutorBoard/TutorBoard";
-
-
+import "./game.css";
 
 const Game = () => {
-    const [active, setActive] = useState("tutor");
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [selectedLesson, setSelectedLesson] = useState(null);
-    const handleLessonSelect = (item) => {
-        setSelectedLesson(item);
-    };
-    useEffect(() => {
-        if (!active) return;
-        setLoading(true);
-        setError(null);
-        axios.get(`http://localhost:3000/game/${active}`)
-        .then(response => {
-            setData(response.data.result);
-            setLoading(false);
-        })
-        .catch(error => {
-            console.error(error);
-            setError("Tietojen hakeminen epäonnistui.");
-            setLoading(false);
-        });
-    }, [active]);
-    return (
-        <div className="game-container">
-            <div className="game-icon">
-                <div className={`tutor-game ${active === "tutor" ? "active" : ""}`} onClick={() => { setActive("tutor"); setSelectedLesson(null); }}>
+  const [activeSection, setActiveSection] = useState("arvaa"); 
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedLesson, setSelectedLesson] = useState(null);
 
-                    <img src={tutorIcon} alt="" className="tutor-icon" />
-                    <h1>Arvaa sana!</h1>
-                </div>
-                <div className={`sanapyramidi-game ${active === "sanapyramidi" ? "active" : ""}`} onClick={() => setActive("sanapyramidi")}>
-                    <img src={sanapyramidi} alt="" className="sanapyramidi-icon" />
-                    <h1>Sanapyramidi</h1>
-                </div>
-                {console.log(data)}
-            </div>
-            <div className="text-introduction">
-                <h1>Harjoittele sanastoa hauskassa sanaselityspelissä!</h1>
-            </div>
-            {loading && <div className="loading">Ladataan...</div>}
-            {error && <div className="error">{error}</div>}
-            {!loading && !error && !selectedLesson && (active === "tutor" ? <TutorItem data={data} onLessonSelect={handleLessonSelect} /> : <SanapyramidiItem data={data} />)}
-            {selectedLesson && (active === "tutor" ? <TutorBoard lesson={selectedLesson} characterImage={selectedLesson.imageLink} /> : null)}
+  const handleLessonSelect = (item) => {
+    setSelectedLesson(item);
+  };
+
+  useEffect(() => {
+    if (!activeSection) return;
+    setLoading(true);
+    setError(null);
+
+    const endpoint = activeSection === "arvaa" ? "tutor" : "sanapyramidi";
+
+    axios.get(`http://localhost:3000/game/${endpoint}`)
+      .then((response) => {
+        setData(response.data.result);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setError("Tietojen hakeminen epäonnistui.");
+        setLoading(false);
+      });
+  }, [activeSection]);
+
+  return (
+    <div className="game-page">
+      <div className="game-nav-bar">
+        <div
+          className={`game-section ${activeSection === "arvaa" ? "active" : ""}`}
+          onClick={() => { setActiveSection("arvaa"); setSelectedLesson(null); }}
+        >
+          <Icon icon="fluent:hat-graduation-24-filled" width="24" height="24" />
+          <h1>Arvaa sana!</h1>
         </div>
-    );
+
+        <div
+          className={`game-section ${activeSection === "pyramidi" ? "active" : ""}`}
+          onClick={() => { setActiveSection("pyramidi"); setSelectedLesson(null); }}
+        >
+          <img
+            src={activeSection === "pyramidi" ? pyramidiLogo : PyramidiUnactive}
+            alt="Pyramidi Logo"
+            width={24}
+            height={24}
+          />
+          <h1>Sanapyramidi</h1>
+        </div>
+      </div>
+
+      <h2 className="game-instruction">
+        {activeSection === "arvaa" 
+          ? "Harjoittele sanastoa hauskassa sanaselityspelissä!" 
+          : "Löydä yhdistävä tekijäpyramidin eri kerrosten sanoille"}
+      </h2>
+
+      {loading && <div className="loading">Ladataan...</div>}
+      {error && <div className="error">{error}</div>}
+
+      {!loading && !error && !selectedLesson && (
+        activeSection === "arvaa"
+          ? <TutorItem data={data} onLessonSelect={handleLessonSelect} />
+          : <SanapyramidiItem data={data} />
+      )}
+
+      {selectedLesson && activeSection === "arvaa" && (
+        <TutorBoard lesson={selectedLesson} characterImage={selectedLesson.imageLink} />
+      )}
+    </div>
+  );
 };
 
 export default Game;
