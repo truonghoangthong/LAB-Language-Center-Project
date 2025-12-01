@@ -25,7 +25,7 @@ const Game = () => {
     setLoading(true);
     setError(null);
 
-    const endpoint = activeSection === "arvaa" ? "tutor" : "pyramidi";
+    const endpoint = activeSection === "arvaa" ? "tutor" : "sanapyramidi";
 
     axios.get(`http://localhost:3000/game/${endpoint}`)
       .then((response) => {
@@ -51,11 +51,11 @@ const Game = () => {
         </div>
 
         <div
-          className={`game-section ${activeSection === "pyramidi" ? "active" : ""}`}
-          onClick={() => { setActiveSection("pyramidi"); setSelectedLesson(null); }}
+          className={`game-section ${activeSection === "sanapyramidi" ? "active" : ""}`}
+          onClick={() => { setActiveSection("sanapyramidi"); setSelectedLesson(null); }}
         >
           <img
-            src={activeSection === "pyramidi" ? pyramidiLogo : PyramidiUnactive}
+            src={activeSection === "sanapyramidi" ? pyramidiLogo : PyramidiUnactive}
             alt="Pyramidi Logo"
             width={24}
             height={24}
@@ -82,7 +82,7 @@ const Game = () => {
       {selectedLesson && activeSection === "arvaa" && (
         <TutorBoard lesson={selectedLesson} characterImage={selectedLesson.imageLink} />
       )}
-      {selectedLesson && activeSection === "pyramidi" && (
+      {selectedLesson && activeSection === "sanapyramidi" && (
         <Sanapyramidi />
       )}
     </div>
