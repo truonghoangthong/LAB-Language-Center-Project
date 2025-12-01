@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import pyramidiLogo from "../../assets/pyramid.svg";
 import PyramidiUnactive from "../../assets/pyramid-unactive.svg";
+import SanapyramidiItem from "./SanapyramidiItem/SanapyramidiItem";
 import axios from 'axios';
 import TutorItem from "./TutorItem/TutorItem";
 import TutorBoard from "./TutorBoard/TutorBoard";
+import Sanapyramidi from "./Sanapyramidi";
 import "./game.css";
 
 const Game = () => {
@@ -23,7 +25,7 @@ const Game = () => {
     setLoading(true);
     setError(null);
 
-    const endpoint = activeSection === "arvaa" ? "tutor" : "sanapyramidi";
+    const endpoint = activeSection === "arvaa" ? "tutor" : "pyramidi";
 
     axios.get(`http://localhost:3000/game/${endpoint}`)
       .then((response) => {
@@ -79,6 +81,9 @@ const Game = () => {
 
       {selectedLesson && activeSection === "arvaa" && (
         <TutorBoard lesson={selectedLesson} characterImage={selectedLesson.imageLink} />
+      )}
+      {selectedLesson && activeSection === "pyramidi" && (
+        <Sanapyramidi />
       )}
     </div>
   );

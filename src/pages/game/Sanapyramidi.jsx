@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-function Sanapyramidi() {
+const Sanapyramidi = () => {
     const ALL_WORDS = [
         "Parveke",
         "matto",
