@@ -22,7 +22,7 @@ function App() {
                         <Route path="/game" element={<Game />} />
                         <Route path="/listening" element={<Listening />} />
                         <Route
-                            path="/game/sanapyramidi/:topic"
+                            path="/game/sanapyramidi/:lessonId"
                             element={<Sanapyramidi />}
                         />
                         <Route

@@ -1,24 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import "./sanapyramidiItem.css"; 
 
 const SanapyramidiItem = ({ data }) => {
   const navigate = useNavigate();
 
-  const handleClick = (topic) => {
-    if (!topic) return;
-    const formattedTopic = topic.toLowerCase().replace(/\s+/g, "_");
-    navigate(`/game/sanapyramidi/${formattedTopic}`);
+  const handleClick = (lessonId) => {
+    if (!lessonId) return;
+    navigate(`/game/sanapyramidi/${lessonId}`);
   };
 
   return (
     <div className="sanapyramidi-list">
-      {data.map((item) => (
+      {data.map((item, index) => (
         <div
-          key={item.lessonId} // dùng lessonId làm key
+          key={item.lessonId}
           className="sanapyramidi-topic"
-          onClick={() => handleClick(item.lessonName)}
+          onClick={() => handleClick(item.lessonId)}
         >
-          {item.lessonName}
+          <span className="topic-index">{index + 1}.</span>
+          <span className="topic-name">{item.lessonName}</span>
         </div>
       ))}
     </div>
