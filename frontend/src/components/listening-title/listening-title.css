@@ -1,0 +1,47 @@
+.title-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;       
+  justify-content: center;  
+  text-align: center;
+  gap: 0.5rem;
+  padding: 1.5rem 0;
+  height: 100%;
+}
+
+.title-task {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+}
+
+.title-lesson {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+}
+
+.title-instruction {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
+  max-width: 600px;
+  white-space: pre-line;
+}
+.title-highlight-click {
+  color: #639B6D;
+}
+
+.title-highlight-drag {
+  color: #C4A24C;
+}
+
+.title-highlight-dialog {
+  color: #D06954;
+}

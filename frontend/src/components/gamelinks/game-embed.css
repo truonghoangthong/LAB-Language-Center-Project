@@ -1,0 +1,22 @@
+.game-embed__frame {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+/* KHÔNG set width/height ở đây nữa */
+.game-embed__frame iframe {
+  display: block;
+  border: 0;
+  border-radius: 12px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .game-embed__frame iframe {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 4 / 3;
+    min-height: 260px;
+  }
+}

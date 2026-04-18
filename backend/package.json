@@ -1,0 +1,35 @@
+{
+  "name": "be",
+  "version": "1.0.0",
+  "main": "dist/server.js",
+  "repository": "https://github.com/truonghoangthong/LAB-Language-Center-Project",
+  "author": "truonghoangthong <126312478+truonghoangthong@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@firebase/firestore": "^4.9.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "firebase": "^12.4.0",
+    "morgan": "^1.10.1",
+    "winston": "^3.18.3",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "start": "npm run build && npm run serve",
+    "build": "tsc",
+    "serve": "node dist/server.js",
+    "start1": "nodemon src/server.ts"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/dotenv": "^8.2.3",
+    "@types/express": "^5.0.3",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^24.7.2",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
